@@ -13,15 +13,17 @@ function wholeCoefficients({ a, b, c }: QuadraticEquation) {
   return { lcm, A: (a.num * lcm) / a.den, B: (b.num * lcm) / b.den, C: (c.num * lcm) / c.den }
 }
 
+// b^2 - 4ac with the numbers put in, negatives in brackets: (-4)^2 - 4(2)(-6)
+const substituted = (A: number, B: number, C: number) => `${B < 0 ? `(${B})` : B}^2 - 4(${A})(${C})`
+
 function discriminantSteps(A: number, B: number, C: number, D: number): Step[] {
-  const square = B < 0 ? `(${B})^2` : `${B}^2`
   const fourAC = 4 * A * C
   const difference = fourAC < 0 ? `${B * B} + ${-fourAC}` : `${B * B} - ${fourAC}`
   const steps: Step[] = [
     {
       title: 'Find the discriminant',
       explanation: 'The discriminant is b^2 - 4ac. Its sign tells us how many real roots there are.',
-      math: `b^2 - 4ac = ${square} - 4(${A})(${C}) = ${difference} = ${D}`,
+      math: `b^2 - 4ac = ${substituted(A, B, C)} = ${difference} = ${D}`,
     },
   ]
   if (D > 0) {
@@ -76,13 +78,13 @@ export const quadraticFormula: SolvingMethod = {
     steps.push(...discriminantSteps(A, B, C, discriminant))
     if (discriminant < 0) return { steps, roots: null }
     const roots = new ExactRoot(-B, 1, discriminant, 2 * A)
-    steps.push(...formulaSteps(A, B, discriminant, roots))
+    steps.push(...formulaSteps(A, B, C, discriminant, roots))
     return { steps, roots }
   },
 }
 
-function formulaSteps(A: number, B: number, D: number, roots: ExactRoot): Step[] {
-  const minusB = B < 0 ? `-(${B})` : B === 0 ? "0" : `-${B}`
+function formulaSteps(A: number, B: number, C: number, D: number, roots: ExactRoot): Step[] {
+  const minusB = B < 0 ? `-(${B})` : B === 0 ? '0' : `-${B}`
   const top = `${-B} \\pm \\sqrt{${D}}`
   let simplified = `x = \\frac{${top}}{${2 * A}}`
   const { coefficient: k, radicand: m } = simplifySqrt(D)
@@ -104,7 +106,7 @@ function formulaSteps(A: number, B: number, D: number, roots: ExactRoot): Step[]
     {
       title: 'Apply the quadratic formula',
       explanation: 'Substitute a, b and c into the quadratic formula.',
-      math: `x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{${minusB} \\pm \\sqrt{${D}}}{2(${A})}`,
+      math: `x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{${minusB} \\pm \\sqrt{${substituted(A, B, C)}}}{2(${A})}`,
     },
     {
       title: 'Simplify',

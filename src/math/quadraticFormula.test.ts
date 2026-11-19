@@ -81,7 +81,7 @@ describe('quadraticFormula steps: a, b, c and the discriminant', () => {
 describe('quadraticFormula steps: formula, simplify, roots', () => {
   it('2x^2 - 4x - 6 = 0 -> x = 3 or x = -1', () => {
     expect(lines('2x^2 - 4x - 6 = 0').slice(3)).toEqual([
-      'Apply the quadratic formula: x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{-(-4) \\pm \\sqrt{64}}{2(2)}',
+      'Apply the quadratic formula: x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{-(-4) \\pm \\sqrt{(-4)^2 - 4(2)(-6)}}{2(2)}',
       'Simplify: x = \\frac{4 \\pm \\sqrt{64}}{4} = \\frac{4 \\pm 8}{4}',
       'Write the roots: x = 3 \\text{ or } x = -1',
     ])
@@ -90,7 +90,7 @@ describe('quadraticFormula steps: formula, simplify, roots', () => {
   it('x^2 - 2x - 4 = 0 -> x = 1 ± √5, with decimals', () => {
     const { steps } = solve('x^2 - 2x - 4 = 0')
     expect(steps.slice(3).map((s) => `${s.title}: ${s.math}`)).toEqual([
-      'Apply the quadratic formula: x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{-(-2) \\pm \\sqrt{20}}{2(1)}',
+      'Apply the quadratic formula: x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{-(-2) \\pm \\sqrt{(-2)^2 - 4(1)(-4)}}{2(1)}',
       'Simplify: x = \\frac{2 \\pm \\sqrt{20}}{2} = \\frac{2 \\pm 2\\sqrt{5}}{2}',
       'Write the roots: x = 1 \\pm \\sqrt{5}',
     ])
@@ -100,7 +100,7 @@ describe('quadraticFormula steps: formula, simplify, roots', () => {
   it('x^2 + 2x + 1 = 0 -> one root x = -1', () => {
     const { steps } = solve('x^2 + 2x + 1 = 0')
     expect(steps.slice(3).map((s) => `${s.title}: ${s.math}`)).toEqual([
-      'Apply the quadratic formula: x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{-2 \\pm \\sqrt{0}}{2(1)}',
+      'Apply the quadratic formula: x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{-2 \\pm \\sqrt{2^2 - 4(1)(1)}}{2(1)}',
       'Simplify: x = \\frac{-2 \\pm \\sqrt{0}}{2} = \\frac{-2}{2}',
       'Write the roots: x = -1',
     ])
@@ -113,5 +113,22 @@ describe('quadraticFormula never shows -0', () => {
     const steps = solve('-x^2 + 4 = 0').steps
     expect(steps.every((s) => !/-0(?![.\d])/.test(s.math))).toBe(true)
     expect(steps.find((s) => s.title === 'Apply the quadratic formula')?.math).toContain('\\frac{0 \\pm')
+  })
+})
+
+describe('quadraticFormula substitution puts negatives in brackets', () => {
+  const substitution = (text: string) =>
+    solve(text).steps.find((s) => s.title === 'Apply the quadratic formula')?.math.split(' = ').at(-1)
+
+  it('b < 0: 2x^2 - 4x - 6 = 0', () => {
+    expect(substitution('2x^2 - 4x - 6 = 0')).toBe('\\frac{-(-4) \\pm \\sqrt{(-4)^2 - 4(2)(-6)}}{2(2)}')
+  })
+
+  it('b > 0: x^2 + 3x - 4 = 0', () => {
+    expect(substitution('x^2 + 3x - 4 = 0')).toBe('\\frac{-3 \\pm \\sqrt{3^2 - 4(1)(-4)}}{2(1)}')
+  })
+
+  it('b = 0 and a < 0: -x^2 + 4 = 0', () => {
+    expect(substitution('-x^2 + 4 = 0')).toBe('\\frac{0 \\pm \\sqrt{0^2 - 4(-1)(4)}}{2(-1)}')
   })
 })
