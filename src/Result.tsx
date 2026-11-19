@@ -1,3 +1,4 @@
+import { TeX } from './TeX'
 import type { Step } from './math/step'
 import type { SolveResult } from './solve'
 
@@ -10,7 +11,7 @@ function Steps({ heading, steps }: { heading: string; steps: Step[] }) {
           <li key={i}>
             <h3>{step.title}</h3>
             <p>{step.explanation}</p>
-            <code>{step.math}</code>
+            <TeX math={step.math} />
           </li>
         ))}
       </ol>
