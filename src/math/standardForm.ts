@@ -1,9 +1,10 @@
-import { parseEquation, type Equation } from './parse'
+import { expand } from './expand'
+import { exprToLatex, exprToText } from './format'
+import { parseEquation, type Equation, type Expr } from './parse'
 import type { Polynomial } from './polynomial'
 import type { Rational } from './rational'
 import type { Step } from './step'
 import { tokenize } from './tokenize'
-import { toPolynomial } from './toPolynomial'
 
 interface Common {
   steps: Step[]
@@ -20,26 +21,54 @@ function termCount(p: Polynomial): number {
   return count
 }
 
+// Identity steps for one side, then a general expand step if that still changes what the student sees.
+function expandSide(expr: Expr, side: 'left' | 'right', steps: Step[]): Polynomial {
+  const { polynomial, steps: identitySteps } = expand(expr)
+  steps.push(...identitySteps)
+  const math = `${exprToLatex(expr)} = ${polynomial.toLatex()}`
+  const alreadyShown = identitySteps.at(-1)?.math === math
+  if (exprToText(expr) !== polynomial.toString() && !alreadyShown) {
+    steps.push({
+      title: `Expand and simplify the ${side} side`,
+      explanation: 'Multiply out any brackets, then combine the terms that have the same power of x.',
+      math,
+    })
+  }
+  return polynomial
+}
+
 /** Rearranges the student's equation into ax^2 + bx + c = 0, explaining each step. */
 export function toStandardForm(equationText: string): StandardForm {
   const original = parseEquation(tokenize(equationText))
-  const left = toPolynomial(original.left)
-  const right = toPolynomial(original.right)
-  const polynomial = left.subtract(right)
   const steps: Step[] = []
+  const left = expandSide(original.left, 'left', steps)
+  const right = expandSide(original.right, 'right', steps)
+  const polynomial = left.subtract(right)
 
   if (right.degree() >= 0) {
     // brackets only when the right side has several terms or starts with a minus
     const needsBrackets = termCount(right) > 1 || right.coefficient(right.degree()).num < 0
     const moved = needsBrackets ? `(${right.toLatex()})` : right.toLatex()
+    const movedMath = `${left.toLatex()} - ${moved} = 0`
     steps.push({
       title: 'Move everything to the left side',
       explanation: `Subtract ${right.toString()} from both sides, so the right side becomes 0.`,
-      math: `${left.toLatex()} - ${moved} = 0`,
+      math: movedMath,
     })
+    const collected = `${polynomial.toLatex()} = 0`
+    if (collected !== movedMath) {
+      steps.push({
+        title: 'Collect like terms',
+        explanation: 'Combine the terms that have the same power of x.',
+        math: collected,
+      })
+    }
+  }
+
+  if (right.degree() < 0 && steps.length > 0) {
     steps.push({
-      title: 'Collect like terms',
-      explanation: 'Combine the terms that have the same power of x.',
+      title: 'Write in standard form',
+      explanation: 'The right side is 0, so the equation is now in the form ax^2 + bx + c = 0.',
       math: `${polynomial.toLatex()} = 0`,
     })
   }
