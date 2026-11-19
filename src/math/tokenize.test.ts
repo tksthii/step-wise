@@ -44,3 +44,35 @@ describe('tokenize', () => {
     expect(tokenize('   ')).toEqual([])
   })
 })
+
+describe('tokenize implicit multiplication', () => {
+  const types = (s: string) => tokenize(s).map((t) => (t.type === 'number' ? t.text : t.type)).join(' ')
+
+  it('number before x: 2x -> 2*x', () => {
+    expect(types('2x')).toBe('2 * x')
+  })
+
+  it('number before (: 3(x+1) -> 3*(x+1)', () => {
+    expect(types('3(x+1)')).toBe('3 * ( x + 1 )')
+  })
+
+  it('x before ( and x before x: x(x-2), xx', () => {
+    expect(types('x(x-2)')).toBe('x * ( x - 2 )')
+    expect(types('xx')).toBe('x * x')
+  })
+
+  it(') before ( , x or a number: )( , )x , )2', () => {
+    expect(types('(x+1)(x-1)')).toBe('( x + 1 ) * ( x - 1 )')
+    expect(types('(x+1)x')).toBe('( x + 1 ) * x')
+    expect(types('(x+1)2')).toBe('( x + 1 ) * 2')
+  })
+
+  it('works across spaces: 3 x -> 3*x', () => {
+    expect(types('3 x')).toBe('3 * x')
+  })
+
+  it('does not join two numbers or x before a number', () => {
+    expect(types('2 3')).toBe('2 3')
+    expect(types('x2')).toBe('x 2')
+  })
+})
