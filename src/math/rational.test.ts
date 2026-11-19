@@ -85,3 +85,13 @@ describe('Rational equals', () => {
     expect(new Rational(1, 2).equals(new Rational(1, 3))).toBe(false)
   })
 })
+
+describe('Rational toString', () => {
+  it('writes fractions, negatives and whole numbers', () => {
+    expect(new Rational(3, 4).toString()).toBe('3/4')
+    expect(new Rational(-2).toString()).toBe('-2')
+    expect(new Rational(10, 2).toString()).toBe('5')
+    expect(new Rational(-1, 3).toString()).toBe('-1/3')
+    expect(new Rational(0).toString()).toBe('0')
+  })
+})

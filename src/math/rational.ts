@@ -43,4 +43,8 @@ export class Rational {
   equals(other: Rational): boolean {
     return this.num === other.num && this.den === other.den
   }
+
+  toString(): string {
+    return this.den === 1 ? `${this.num}` : `${this.num}/${this.den}`
+  }
 }
