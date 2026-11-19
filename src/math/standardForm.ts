@@ -90,7 +90,7 @@ export function toStandardForm(equationText: string): StandardForm {
     const movedMath = `${left.toLatex()} - ${moved} = 0`
     steps.push({
       title: 'Move everything to the left side',
-      explanation: `Subtract ${right.toString()} from both sides, so the right side becomes 0.`,
+      explanation: `Subtract $${right.toLatex()}$ from both sides, so the right side becomes 0.`,
       math: movedMath,
     })
     const collected = `${polynomial.toLatex()} = 0`
@@ -106,7 +106,7 @@ export function toStandardForm(equationText: string): StandardForm {
   if (right.degree() < 0 && steps.length > 0) {
     steps.push({
       title: 'Write in standard form',
-      explanation: 'The right side is 0, so the equation is now in the form ax^2 + bx + c = 0.',
+      explanation: 'The right side is 0, so the equation is now in the form $ax^2 + bx + c = 0$.',
       math: `${polynomial.toLatex()} = 0`,
     })
   }
@@ -128,7 +128,7 @@ export function toStandardForm(equationText: string): StandardForm {
       title: 'All the x terms cancel',
       explanation: always
         ? 'Nothing is left but 0 = 0, which is always true. So every value of x makes the equation true.'
-        : `What is left, ${c} = 0, is never true. So no value of x makes the equation true.`,
+        : `What is left, $${latex(c)} = 0$, is never true. So no value of x makes the equation true.`,
       math: `${latex(c)} = 0`,
     })
     return always

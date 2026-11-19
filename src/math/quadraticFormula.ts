@@ -22,7 +22,7 @@ function discriminantSteps(A: number, B: number, C: number, D: number): Step[] {
   const steps: Step[] = [
     {
       title: 'Find the discriminant',
-      explanation: 'The discriminant is b^2 - 4ac. Its sign tells us how many real roots there are.',
+      explanation: 'The discriminant is $b^2 - 4ac$. Its sign tells us how many real roots there are.',
       math: `b^2 - 4ac = ${substituted(A, B, C)} = ${difference} = ${D}`,
     },
   ]
@@ -61,7 +61,7 @@ export const quadraticFormula: SolvingMethod = {
     const steps: Step[] = [
       {
         title: 'Identify a, b and c',
-        explanation: 'Compare the equation with the standard form ax^2 + bx + c = 0.',
+        explanation: 'Compare the equation with the standard form $ax^2 + bx + c = 0$.',
         math: `a = ${latex(eq.a)}, \\quad b = ${latex(eq.b)}, \\quad c = ${latex(eq.c)}`,
       },
     ]
@@ -94,9 +94,9 @@ function formulaSteps(A: number, B: number, C: number, D: number, roots: ExactRo
 
   const rational = roots.rationalRoots()
   let explanation: string
-  if (rational?.length === 1) explanation = `There is only one root: x = ${rational[0]}.`
+  if (rational?.length === 1) explanation = `There is only one root: $x = ${latex(rational[0])}$.`
   else if (rational) {
-    explanation = `The square root is a whole number, so both roots are rational: x = ${rational[0]} or x = ${rational[1]}.`
+    explanation = `The square root is a whole number, so both roots are rational: $x = ${latex(rational[0])}$ or $x = ${latex(rational[1])}$.`
   } else {
     const [plus, minus] = roots.decimals().map(twoPlaces)
     explanation = `This is the exact answer. As decimals, x ≈ ${plus} or x ≈ ${minus} (rounded to 2 decimal places).`

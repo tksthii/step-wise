@@ -3,7 +3,7 @@ import type { IdentityNumber } from './identities'
 /** One line of a worked solution. */
 export interface Step {
   title: string
-  /** Plain English for an Ontario high-school student. */
+  /** Plain English for an Ontario high-school student; math goes inside $...$ as inline LaTeX. */
   explanation: string
   /** LaTeX source for the math shown in this step. */
   math: string

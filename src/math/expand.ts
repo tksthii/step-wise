@@ -1,4 +1,4 @@
-import { exprToLatex, exprToText } from './format'
+import { exprToLatex } from './format'
 import { IDENTITIES, type IdentityNumber } from './identities'
 import type { Expr } from './parse'
 import type { Polynomial } from './polynomial'
@@ -61,8 +61,8 @@ export function expand(expr: Expr): Expansion {
     steps.push({
       title: `Use identity ${number}: ${name}`,
       explanation:
-        `This has the shape ${shape} with a = ${exprToText(match.a)} and b = ${exprToText(match.b)}. ` +
-        `Expand it with ${shape} = ${expanded}.`,
+        `This has the shape $${shape}$ with $a = ${exprToLatex(match.a)}$ and $b = ${exprToLatex(match.b)}$. ` +
+        `Expand it with $${shape} = ${expanded}$.`,
       math: `${exprToLatex(node)} = ${result.toLatex()}`,
       identity: number,
     })

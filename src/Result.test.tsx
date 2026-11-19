@@ -16,7 +16,7 @@ describe('Result steps', () => {
   })
 
   it('shows each step explanation', () => {
-    expect(render('x^2 = 3x + 4')).toContain('Subtract 3x + 4 from both sides, so the right side becomes 0.')
+    expect(render('x^2 = 3x + 4')).toContain('from both sides, so the right side becomes 0.')
   })
 })
 

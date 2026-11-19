@@ -21,7 +21,7 @@ describe('expand', () => {
     expect(steps[0].identity).toBe(1)
     expect(steps[0].math).toBe('(x + 1)^2 = x^2 + 2x + 1')
     expect(steps[0].title).toBe('Use identity 1: Square of a sum')
-    expect(steps[0].explanation).toContain('a = x and b = 1')
+    expect(steps[0].explanation).toContain('$a = x$ and $b = 1$')
   })
 })
 
@@ -30,7 +30,7 @@ describe('expand identity 2', () => {
     const { polynomial, steps } = run('(2x-3)^2')
     expect(polynomial.toString()).toBe('4x^2 - 12x + 9')
     expect(steps.map((s) => s.identity)).toEqual([2])
-    expect(steps[0].explanation).toContain('a = 2x and b = 3')
+    expect(steps[0].explanation).toContain('$a = 2x$ and $b = 3$')
   })
 })
 
@@ -39,7 +39,7 @@ describe('expand identity 3', () => {
     const { polynomial, steps } = run('(x-3)(x+3)')
     expect(polynomial.toString()).toBe('x^2 - 9')
     expect(steps.map((s) => s.identity)).toEqual([3])
-    expect(steps[0].explanation).toContain('a = x and b = 3')
+    expect(steps[0].explanation).toContain('$a = x$ and $b = 3$')
     expect(run('(2x+1)(2x-1)').steps.map((s) => s.identity)).toEqual([3])
   })
 
@@ -70,7 +70,7 @@ describe('expand identities 6 and 7', () => {
     const { polynomial, steps } = run('(x+2)(x^2 - 2x + 4)')
     expect(polynomial.toString()).toBe('x^3 + 8')
     expect(steps.map((s) => s.identity)).toEqual([6])
-    expect(steps[0].explanation).toContain('a = x and b = 2')
+    expect(steps[0].explanation).toContain('$a = x$ and $b = 2$')
   })
 
   it('7: (A-B)(A^2 + AB + B^2) = A^3 - B^3, either order', () => {
@@ -86,12 +86,12 @@ describe('expand identities 6 and 7', () => {
 
 describe('expand explanations read in the expanding direction', () => {
   it.each([
-    ['(x-2)(x+2)', 'This has the shape (a-b)(a+b)', '(a-b)(a+b) = a^2-b^2'],
-    ['(x+2)(x^2 - 2x + 4)', 'This has the shape (a+b)(a^2 - ab + b^2)', '(a+b)(a^2 - ab + b^2) = a^3+b^3'],
-    ['(x+1)^2', 'This has the shape (a+b)^2', '(a+b)^2 = a^2 + 2ab + b^2'],
+    ['(x-2)(x+2)', 'This has the shape $(a-b)(a+b)$', '(a-b)(a+b) = a^2-b^2'],
+    ['(x+2)(x^2 - 2x + 4)', 'This has the shape $(a+b)(a^2 - ab + b^2)$', '(a+b)(a^2 - ab + b^2) = a^3+b^3'],
+    ['(x+1)^2', 'This has the shape $(a+b)^2$', '(a+b)^2 = a^2 + 2ab + b^2'],
   ])('%s', (input, shape, formula) => {
     const { explanation } = run(input).steps[0]
     expect(explanation).toContain(shape)
-    expect(explanation).toContain(`Expand it with ${formula}.`)
+    expect(explanation).toContain(`Expand it with $${formula}$.`)
   })
 })
