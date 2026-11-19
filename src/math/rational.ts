@@ -34,4 +34,9 @@ export class Rational {
   multiply(other: Rational): Rational {
     return new Rational(this.num * other.num, this.den * other.den)
   }
+
+  divide(other: Rational): Rational {
+    if (other.num === 0) throw new Error('Cannot divide by zero')
+    return new Rational(this.num * other.den, this.den * other.num)
+  }
 }

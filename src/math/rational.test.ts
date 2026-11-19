@@ -66,3 +66,14 @@ describe('Rational multiply', () => {
     expect(new Rational(5, 7).multiply(new Rational(0))).toEqual(new Rational(0))
   })
 })
+
+describe('Rational divide', () => {
+  it('divides and reduces', () => {
+    expect(new Rational(3, 4).divide(new Rational(3, 8))).toEqual(new Rational(2))
+    expect(new Rational(1, 2).divide(new Rational(-3))).toEqual(new Rational(-1, 6))
+  })
+
+  it('throws a clear error on divide by zero', () => {
+    expect(() => new Rational(1).divide(new Rational(0))).toThrow('Cannot divide by zero')
+  })
+})
