@@ -148,3 +148,25 @@ describe('toStandardForm above degree 2', () => {
     expect(result.steps.at(-1)?.math).toBe('x^3 - 1 = 0')
   })
 })
+
+describe('toStandardForm without an = sign', () => {
+  const titles = (text: string) => toStandardForm(text).steps.map((s) => s.title)
+
+  it('says the expression is set equal to 0', () => {
+    const { steps } = toStandardForm('x^2 - 4')
+    expect(steps[0]).toEqual({
+      title: 'Set the expression equal to 0',
+      explanation: "There's no = sign, so we set the expression equal to 0.",
+      math: 'x^2 - 4 = 0',
+    })
+    expect(steps).toHaveLength(1)
+  })
+
+  it('then expands as usual', () => {
+    expect(titles('(x+1)^2')).toEqual(['Set the expression equal to 0', 'Use identity 1: Square of a sum', 'Write in standard form'])
+  })
+
+  it('keeps "Already in standard form" when the input really had = 0', () => {
+    expect(titles('x^2 - 4 = 0')).toEqual(['Already in standard form'])
+  })
+})

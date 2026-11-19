@@ -77,8 +77,16 @@ function expandSide(expr: Expr, side: 'left' | 'right', steps: Step[]): Polynomi
 
 /** Rearranges the student's equation into ax^2 + bx + c = 0, explaining each step. */
 export function toStandardForm(equationText: string): StandardForm {
-  const original = parseEquation(tokenize(equationText))
+  const tokens = tokenize(equationText)
+  const original = parseEquation(tokens)
   const steps: Step[] = []
+  if (!tokens.some((t) => t.type === '=')) {
+    steps.push({
+      title: 'Set the expression equal to 0',
+      explanation: "There's no = sign, so we set the expression equal to 0.",
+      math: `${exprToLatex(original.left)} = 0`,
+    })
+  }
   const left = expandSide(original.left, 'left', steps)
   const right = expandSide(original.right, 'right', steps)
   const polynomial = left.subtract(right)
@@ -103,7 +111,8 @@ export function toStandardForm(equationText: string): StandardForm {
     }
   }
 
-  if (right.degree() < 0 && steps.length > 0) {
+  // skipped when the previous line already shows it, e.g. "x^2 - 4" typed with no =
+  if (right.degree() < 0 && steps.length > 0 && steps.at(-1)?.math !== `${polynomial.toLatex()} = 0`) {
     steps.push({
       title: 'Write in standard form',
       explanation: 'The right side is 0, so the equation is now in the form $ax^2 + bx + c = 0$.',
