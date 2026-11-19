@@ -26,4 +26,9 @@ export class Polynomial {
     const length = Math.max(this.coeffs.length, other.coeffs.length)
     return new Polynomial(Array.from({ length }, (_, i) => this.coefficient(i).add(other.coefficient(i))))
   }
+
+  subtract(other: Polynomial): Polynomial {
+    const length = Math.max(this.coeffs.length, other.coeffs.length)
+    return new Polynomial(Array.from({ length }, (_, i) => this.coefficient(i).subtract(other.coefficient(i))))
+  }
 }

@@ -52,3 +52,14 @@ describe('Polynomial add', () => {
     expect(poly(1, 0, 2).add(poly(0, 0, -2))).toEqual(poly(1))
   })
 })
+
+describe('Polynomial subtract', () => {
+  it('subtracts like terms', () => {
+    // (x^2 + 2x) - (3x - 5) = x^2 - x + 5
+    expect(poly(0, 2, 1).subtract(poly(-5, 3))).toEqual(poly(5, -1, 1))
+  })
+
+  it('gives zero when subtracting itself', () => {
+    expect(poly(3, 1).subtract(poly(3, 1)).degree()).toBe(-1)
+  })
+})
