@@ -29,6 +29,12 @@ export function toPolynomial(expr: Expr): Polynomial {
           return left.subtract(right)
         case '*':
           return left.multiply(right)
+        case '/': {
+          if (right.degree() > 0) throw new Error('x in the denominator is not supported')
+          const divisor = right.coefficient(0)
+          if (divisor.num === 0) throw new Error('Cannot divide by zero')
+          return left.multiply(new Polynomial([new Rational(1).divide(divisor)]))
+        }
         default:
           throw new Error(`Converting "${expr.op}" is not supported yet`)
       }

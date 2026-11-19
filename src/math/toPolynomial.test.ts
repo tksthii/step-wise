@@ -53,3 +53,20 @@ describe('toPolynomial multiplication', () => {
     expect(convert('(x-3)(x+1)')).toEqual(poly(-3, -2, 1))
   })
 })
+
+describe('toPolynomial division', () => {
+  it('divides by a constant', () => {
+    expect(convert('(4x*x + 2)/2')).toEqual(poly(1, 0, 2))
+    expect(convert('x/3')).toEqual(new Polynomial([r(0), r(1, 3)]))
+  })
+
+  it('rejects x in the denominator', () => {
+    expect(() => convert('1/x')).toThrow('x in the denominator is not supported')
+    expect(() => convert('2/(x+1)')).toThrow('x in the denominator is not supported')
+  })
+
+  it('rejects dividing by zero, even a hidden zero', () => {
+    expect(() => convert('x/0')).toThrow('Cannot divide by zero')
+    expect(() => convert('x/(x-x)')).toThrow('Cannot divide by zero')
+  })
+})
