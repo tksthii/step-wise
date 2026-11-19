@@ -77,3 +77,11 @@ describe('Rational divide', () => {
     expect(() => new Rational(1).divide(new Rational(0))).toThrow('Cannot divide by zero')
   })
 })
+
+describe('Rational equals', () => {
+  it('compares reduced values', () => {
+    expect(new Rational(2, 4).equals(new Rational(1, 2))).toBe(true)
+    expect(new Rational(1, -2).equals(new Rational(-1, 2))).toBe(true)
+    expect(new Rational(1, 2).equals(new Rational(1, 3))).toBe(false)
+  })
+})
