@@ -54,3 +54,19 @@ describe('ExactRoot rationalRoots', () => {
     expect(new ExactRoot(2, 1, 20, 2).rationalRoots()).toBeNull()
   })
 })
+
+describe('ExactRoot toLatex', () => {
+  it.each([
+    [[4, 1, 40, 4], 'x = \\frac{2 \\pm \\sqrt{10}}{2}'],
+    [[2, 2, 5, 2], 'x = 1 \\pm \\sqrt{5}'],
+    [[6, 4, 6, 6], 'x = \\frac{3 \\pm 2\\sqrt{6}}{3}'],
+    [[-1, 1, 5, 2], 'x = \\frac{-1 \\pm \\sqrt{5}}{2}'],
+    [[0, 1, 2, 1], 'x = \\pm \\sqrt{2}'],
+    [[0, 1, 3, 2], 'x = \\pm \\frac{\\sqrt{3}}{2}'],
+    [[-3, 1, 81, 6], 'x = 1 \\text{ or } x = -2'],
+    [[1, 1, 9, 4], 'x = 1 \\text{ or } x = -\\frac{1}{2}'],
+    [[-2, 1, 0, 2], 'x = -1'],
+  ] as [[number, number, number, number], string][])('%j -> %s', ([p, q, n, d], expected) => {
+    expect(new ExactRoot(p, q, n, d).toLatex()).toBe(expected)
+  })
+})

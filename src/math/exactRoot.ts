@@ -1,3 +1,4 @@
+import { Polynomial } from './polynomial'
 import { gcd, Rational } from './rational'
 import { simplifySqrt } from './sqrt'
 
@@ -32,5 +33,15 @@ export class ExactRoot {
     if (this.n === 0) return [new Rational(this.p, this.d)]
     if (this.n !== 1) return null
     return [new Rational(this.p + this.q, this.d), new Rational(this.p - this.q, this.d)]
+  }
+
+  /** "x = \frac{2 \pm \sqrt{10}}{2}", or "x = 1 \text{ or } x = -2" when the roots are rational. */
+  toLatex(): string {
+    const rational = this.rationalRoots()
+    if (rational) return rational.map((r) => `x = ${new Polynomial([r]).toLatex()}`).join(' \\text{ or } ')
+    const radical = `${this.q === 1 ? '' : this.q}\\sqrt{${this.n}}`
+    if (this.d === 1) return this.p === 0 ? `x = \\pm ${radical}` : `x = ${this.p} \\pm ${radical}`
+    if (this.p === 0) return `x = \\pm \\frac{${radical}}{${this.d}}`
+    return `x = \\frac{${this.p} \\pm ${radical}}{${this.d}}`
   }
 }
