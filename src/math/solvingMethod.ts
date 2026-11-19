@@ -1,5 +1,5 @@
 import type { ExactRoot } from './exactRoot'
-import type { Expr } from './parse'
+import type { Equation } from './parse'
 import type { Rational } from './rational'
 import type { Step } from './step'
 
@@ -8,7 +8,7 @@ export interface QuadraticEquation {
   a: Rational
   b: Rational
   c: Rational
-  original: { left: Expr; right: Expr }
+  original: Equation
 }
 
 export type Applicability = { ok: true } | { ok: false; reason: string }

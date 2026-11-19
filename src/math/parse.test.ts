@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseExpression, type Expr } from './parse'
+import { parseEquation, parseExpression, type Expr } from './parse'
 import { tokenize } from './tokenize'
 
 // Fully parenthesized form makes the tree shape readable in assertions.
@@ -64,5 +64,24 @@ describe('parseExpression rejects malformed input', () => {
     expect(() => parse('(1')).toThrow()
     expect(() => parse('1+')).toThrow()
     expect(() => parse('')).toThrow()
+  })
+})
+
+describe('parseEquation', () => {
+  const eq = (s: string) => {
+    const { left, right } = parseEquation(tokenize(s))
+    return `${show(left)} = ${show(right)}`
+  }
+
+  it('splits on = into left and right sides', () => {
+    expect(eq('x^2 = 3x + 4')).toBe('(x^2) = ((3*x)+4)')
+  })
+
+  it('treats input without = as "= 0"', () => {
+    expect(eq('x^2 - 1')).toBe('((x^2)-1) = 0')
+  })
+
+  it('rejects more than one =', () => {
+    expect(() => eq('x = 1 = 2')).toThrow('Only one = sign is allowed')
   })
 })
