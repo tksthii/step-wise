@@ -85,3 +85,31 @@ describe('toStandardForm without =', () => {
     expect(steps.at(-1)?.math).toBe('x^2 + 2x + 1 = 0')
   })
 })
+
+describe('toStandardForm linear', () => {
+  it('2x + 3 = 7 is linear with x = 2', () => {
+    const result = toStandardForm('2x + 3 = 7')
+    expect(result.kind).toBe('linear')
+    if (result.kind !== 'linear') return
+    expect(result.message).toBe('This is a linear equation')
+    expect(result.root).toEqual(r(2))
+    expect(result.steps.slice(-3).map((s) => `${s.title}: ${s.math}`)).toEqual([
+      'This is a linear equation: 2x - 4 = 0',
+      'Add 4 to both sides: 2x = 4',
+      'Divide both sides by 2: x = 2',
+    ])
+  })
+
+  it('x^2 terms that cancel leave a linear equation, with fractional roots', () => {
+    const result = toStandardForm('x^2 + 3x = x^2 + 1')
+    expect(result.kind).toBe('linear')
+    if (result.kind !== 'linear') return
+    expect(result.root).toEqual(r(1, 3))
+    expect(result.steps.at(-1)?.math).toBe('x = \\frac{1}{3}')
+  })
+
+  it('skips steps that do nothing', () => {
+    const result = toStandardForm('x - 5 = 0')
+    expect(result.steps.slice(-2).map((s) => s.title)).toEqual(['This is a linear equation', 'Add 5 to both sides'])
+  })
+})

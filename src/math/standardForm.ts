@@ -1,8 +1,8 @@
 import { expand } from './expand'
 import { exprToLatex, exprToText } from './format'
 import { parseEquation, type Equation, type Expr } from './parse'
-import type { Polynomial } from './polynomial'
-import type { Rational } from './rational'
+import { Polynomial } from './polynomial'
+import { Rational } from './rational'
 import type { Step } from './step'
 import { tokenize } from './tokenize'
 
@@ -13,7 +13,42 @@ interface Common {
   polynomial: Polynomial
 }
 
-export type StandardForm = Common & { kind: 'quadratic'; a: Rational; b: Rational; c: Rational }
+export type StandardForm = Common &
+  (
+    | { kind: 'quadratic'; a: Rational; b: Rational; c: Rational }
+    | { kind: 'linear'; message: 'This is a linear equation'; root: Rational }
+  )
+
+const latex = (r: Rational) => new Polynomial([r]).toLatex()
+
+// bx + c = 0 -> x = -c/b, one step per move so students see each balance step
+function solveLinear(common: Common): StandardForm {
+  const { polynomial, steps } = common
+  const b = polynomial.coefficient(1)
+  const c = polynomial.coefficient(0)
+  steps.push({
+    title: 'This is a linear equation',
+    explanation: 'The highest power of x is 1, so this is a linear equation, not a quadratic. We can solve it directly.',
+    math: `${polynomial.toLatex()} = 0`,
+  })
+  const rhs = new Rational(0).subtract(c)
+  if (c.num !== 0) {
+    steps.push({
+      title: c.num < 0 ? `Add ${rhs} to both sides` : `Subtract ${c} from both sides`,
+      explanation: 'This gets the x term on its own.',
+      math: `${new Polynomial([new Rational(0), b]).toLatex()} = ${latex(rhs)}`,
+    })
+  }
+  const root = rhs.divide(b)
+  if (!b.equals(new Rational(1))) {
+    steps.push({
+      title: `Divide both sides by ${b}`,
+      explanation: 'This leaves x on its own.',
+      math: `x = ${latex(root)}`,
+    })
+  }
+  return { ...common, kind: 'linear', message: 'This is a linear equation', root }
+}
 
 function termCount(p: Polynomial): number {
   let count = 0
@@ -81,15 +116,15 @@ export function toStandardForm(equationText: string): StandardForm {
     })
   }
 
+  const common: Common = { steps, original, polynomial }
+  if (polynomial.degree() === 1) return solveLinear(common)
   if (polynomial.degree() !== 2) {
-    // shortcut: linear, constant and higher-degree equations are classified in the next commits
-    throw new Error('Only quadratic equations are handled so far')
+    // shortcut: constant and higher-degree equations are classified in the next commits
+    throw new Error('Only quadratic and linear equations are handled so far')
   }
   return {
+    ...common,
     kind: 'quadratic',
-    steps,
-    original,
-    polynomial,
     a: polynomial.coefficient(2),
     b: polynomial.coefficient(1),
     c: polynomial.coefficient(0),
