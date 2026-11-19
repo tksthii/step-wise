@@ -35,8 +35,13 @@ export function toPolynomial(expr: Expr): Polynomial {
           if (divisor.num === 0) throw new Error('Cannot divide by zero')
           return left.multiply(new Polynomial([new Rational(1).divide(divisor)]))
         }
-        default:
-          throw new Error(`Converting "${expr.op}" is not supported yet`)
+        case '^': {
+          const exponent = right.coefficient(0)
+          if (right.degree() > 0 || exponent.den !== 1 || exponent.num < 0) {
+            throw new Error('Exponent must be a whole number')
+          }
+          return left.power(exponent.num)
+        }
       }
     }
   }

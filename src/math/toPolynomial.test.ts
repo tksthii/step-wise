@@ -70,3 +70,18 @@ describe('toPolynomial division', () => {
     expect(() => convert('x/(x-x)')).toThrow('Cannot divide by zero')
   })
 })
+
+describe('toPolynomial powers', () => {
+  it('raises to whole-number powers', () => {
+    expect(convert('(x+1)^2')).toEqual(poly(1, 2, 1))
+    expect(convert('(x+1)^3 - x^3')).toEqual(poly(1, 3, 3))
+    expect(convert('x^(4/2)')).toEqual(poly(0, 0, 1))
+    expect(convert('x^0')).toEqual(poly(1))
+  })
+
+  it('rejects exponents that are not whole numbers', () => {
+    for (const s of ['x^-1', 'x^0.5', 'x^(1/2)', 'x^x', '2^(x+1)']) {
+      expect(() => convert(s), s).toThrow('Exponent must be a whole number')
+    }
+  })
+})
