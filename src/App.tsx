@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Result } from './Result'
 import { solveEquation, type SolveResult } from './solve'
 
 function App() {
@@ -27,7 +28,7 @@ function App() {
         />
         <button type="submit">Solve</button>
       </form>
-      {result && <pre>{result.kind}</pre>}
+      {result && <Result result={result} />}
     </main>
   )
 }
