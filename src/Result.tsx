@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { TeX } from './TeX'
+import { TeX, TextWithMath } from './TeX'
 import { Polynomial } from './math/polynomial'
 import type { ExactRoot } from './math/exactRoot'
 import { twoPlaces } from './math/quadraticFormula'
@@ -14,7 +14,9 @@ function Steps({ heading, steps }: { heading: string; steps: Step[] }) {
         {steps.map((step, i) => (
           <li key={i}>
             <h3>{step.title}</h3>
-            <p>{step.explanation}</p>
+            <p>
+              <TextWithMath text={step.explanation} />
+            </p>
             <TeX math={step.math} />
           </li>
         ))}
