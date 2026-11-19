@@ -117,3 +117,15 @@ describe('Polynomial toString', () => {
     expect(new Polynomial([r(0), r(-2, 3)]).toString()).toBe('-(2/3)x')
   })
 })
+
+describe('Polynomial toLatex', () => {
+  it('matches toString for integer coefficients', () => {
+    expect(poly(-6, -4, 2).toLatex()).toBe('2x^2 - 4x - 6')
+    expect(poly().toLatex()).toBe('0')
+  })
+
+  it('uses \\frac for fractions and braces for long exponents', () => {
+    expect(new Polynomial([r(-3, 4), r(1, 2), r(-1)]).toLatex()).toBe('-x^2 + \\frac{1}{2}x - \\frac{3}{4}')
+    expect(poly(...Array(10).fill(0), 1).toLatex()).toBe('x^{10}')
+  })
+})

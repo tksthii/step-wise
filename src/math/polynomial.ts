@@ -52,15 +52,25 @@ export class Polynomial {
 
   /** Student style, highest power first: "2x^2 - 4x - 6", "-x", "(1/2)x + 3", "0". */
   toString(): string {
+    return this.format(false)
+  }
+
+  /** Same as toString, with \frac{}{} for fractions: "\frac{1}{2}x + 3". */
+  toLatex(): string {
+    return this.format(true)
+  }
+
+  private format(latex: boolean): string {
     const terms: string[] = []
     for (let k = this.coeffs.length - 1; k >= 0; k--) {
       const c = this.coeffs[k]
       if (c.num === 0) continue
       const abs = new Rational(Math.abs(c.num), c.den)
-      let coef = abs.toString()
+      let coef = latex && abs.den !== 1 ? `\\frac{${abs.num}}{${abs.den}}` : abs.toString()
       if (k > 0 && abs.num === 1 && abs.den === 1) coef = ''
-      else if (k > 0 && abs.den !== 1) coef = `(${coef})`
-      const term = coef + (k === 0 ? '' : k === 1 ? 'x' : `x^${k}`)
+      else if (k > 0 && abs.den !== 1 && !latex) coef = `(${coef})`
+      const power = latex && k >= 10 ? `x^{${k}}` : `x^${k}`
+      const term = coef + (k === 0 ? '' : k === 1 ? 'x' : power)
       if (terms.length === 0) terms.push(c.num < 0 ? `-${term}` : term)
       else terms.push(c.num < 0 ? `- ${term}` : `+ ${term}`)
     }
