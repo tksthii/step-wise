@@ -19,6 +19,7 @@ export type StandardForm = Common &
     | { kind: 'linear'; message: 'This is a linear equation'; root: Rational }
     | { kind: 'no-solution'; message: 'This equation has no solution' }
     | { kind: 'every-x'; message: 'Every x is a solution' }
+    | { kind: 'not-quadratic'; message: 'Not a quadratic'; degree: number }
   )
 
 const latex = (r: Rational) => new Polynomial([r]).toLatex()
@@ -134,9 +135,14 @@ export function toStandardForm(equationText: string): StandardForm {
       ? { ...common, kind: 'every-x', message: 'Every x is a solution' }
       : { ...common, kind: 'no-solution', message: 'This equation has no solution' }
   }
-  if (polynomial.degree() !== 2) {
-    // shortcut: higher-degree equations are classified in the next commit
-    throw new Error('Only equations up to degree 2 are handled so far')
+  const degree = polynomial.degree()
+  if (degree > 2) {
+    steps.push({
+      title: 'Not a quadratic',
+      explanation: `The highest power of x is ${degree}, so this is not a quadratic equation. step-wise solves equations where the highest power of x is 2.`,
+      math: `${polynomial.toLatex()} = 0`,
+    })
+    return { ...common, kind: 'not-quadratic', message: 'Not a quadratic', degree }
   }
   return {
     ...common,

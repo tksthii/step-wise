@@ -135,3 +135,16 @@ describe('toStandardForm with no x left', () => {
     expect(toStandardForm('(x+1)^2 = x^2 + 2x + 1').kind).toBe('every-x')
   })
 })
+
+describe('toStandardForm above degree 2', () => {
+  it('x^3 = 1 is not a quadratic', () => {
+    const result = toStandardForm('x^3 = 1')
+    expect(result.kind).toBe('not-quadratic')
+    if (result.kind !== 'not-quadratic') return
+    expect(result.message).toBe('Not a quadratic')
+    expect(result.degree).toBe(3)
+    expect(result.steps.at(-1)?.title).toBe('Not a quadratic')
+    expect(result.steps.at(-1)?.explanation).toContain('The highest power of x is 3')
+    expect(result.steps.at(-1)?.math).toBe('x^3 - 1 = 0')
+  })
+})
