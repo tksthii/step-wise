@@ -52,3 +52,32 @@ describe('Result roots box', () => {
     expect(box('x^2 + 1 = 0')).toContain('No real roots')
   })
 })
+
+describe('Result messages', () => {
+  const alert = (html: string) => html.match(/<p class="error" role="alert">([^<]*)<\/p>/)?.[1]
+
+  it('shows a parse error as an alert and nothing else', () => {
+    const html = render('x^2 + (')
+    expect(alert(html)).toBe('Something is missing after (')
+    expect(html).not.toContain('<section')
+  })
+
+  it('linear: alert, its steps, and the answer', () => {
+    const html = render('2x + 3 = 7')
+    expect(alert(html)).toBe('This is a linear equation')
+    expect(html).toContain('Divide both sides by 2')
+    expect(html.slice(html.indexOf('class="roots"'))).toContain('class="katex"')
+  })
+
+  it('not-quadratic: alert and its steps', () => {
+    const html = render('x^3 = 1')
+    expect(alert(html)).toBe('Not a quadratic')
+    expect(html).toContain('The highest power of x is 3')
+  })
+
+  it('no solution and every x are answers, not errors', () => {
+    expect(alert(render('x + 1 = x'))).toBeUndefined()
+    expect(render('x + 1 = x')).toContain('This equation has no solution')
+    expect(render('x = x')).toContain('Every x is a solution')
+  })
+})

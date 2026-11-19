@@ -1,4 +1,6 @@
+import type { ReactNode } from 'react'
 import { TeX } from './TeX'
+import { Polynomial } from './math/polynomial'
 import type { ExactRoot } from './math/exactRoot'
 import { twoPlaces } from './math/quadraticFormula'
 import type { Step } from './math/step'
@@ -40,14 +42,59 @@ function Roots({ roots }: { roots: ExactRoot | null }) {
   )
 }
 
-export function Result({ result }: { result: SolveResult }) {
-  if (result.kind === 'error') return null
-  if (result.kind !== 'quadratic') return <Steps heading="Rearrange into standard form" steps={result.steps} />
+const Alert = ({ message }: { message: string }) => (
+  <p className="error" role="alert">
+    {message}
+  </p>
+)
+
+function Answer({ children }: { children: ReactNode }) {
   return (
-    <>
-      <Steps heading="Rearrange into standard form" steps={result.rearranging} />
-      <Steps heading="Quadratic Formula" steps={result.formula} />
-      <Roots roots={result.roots} />
-    </>
+    <section className="roots">
+      <h2>Answer</h2>
+      {children}
+    </section>
   )
+}
+
+export function Result({ result }: { result: SolveResult }) {
+  switch (result.kind) {
+    case 'error':
+      return <Alert message={result.message} />
+    case 'quadratic':
+      return (
+        <>
+          <Steps heading="Rearrange into standard form" steps={result.rearranging} />
+          <Steps heading="Quadratic Formula" steps={result.formula} />
+          <Roots roots={result.roots} />
+        </>
+      )
+    case 'linear':
+      return (
+        <>
+          <Alert message={result.message} />
+          <Steps heading="Solve the linear equation" steps={result.steps} />
+          <Answer>
+            <TeX math={`x = ${new Polynomial([result.root]).toLatex()}`} />
+          </Answer>
+        </>
+      )
+    case 'not-quadratic':
+      return (
+        <>
+          <Alert message={result.message} />
+          <Steps heading="Rearrange into standard form" steps={result.steps} />
+        </>
+      )
+    case 'no-solution':
+    case 'every-x':
+      return (
+        <>
+          <Steps heading="Rearrange into standard form" steps={result.steps} />
+          <Answer>
+            <p>{result.message}</p>
+          </Answer>
+        </>
+      )
+  }
 }
