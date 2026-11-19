@@ -76,3 +76,12 @@ describe('tokenize implicit multiplication', () => {
     expect(types('x2')).toBe('x 2')
   })
 })
+
+describe('tokenize errors', () => {
+  it('names the unknown character and its position (counting from 1)', () => {
+    expect(() => tokenize('x^2 # 1')).toThrow(
+      '"#" at position 5 is not allowed. Use numbers, x, + - * / ^, ( ) and =',
+    )
+    expect(() => tokenize('y = 2')).toThrow('"y" at position 1 is not allowed')
+  })
+})

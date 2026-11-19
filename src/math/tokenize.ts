@@ -35,7 +35,7 @@ export function tokenize(input: string): Token[] {
       push({ type: ch as Exclude<Token['type'], 'number'> })
       i++
     } else {
-      throw new Error(`Unexpected character "${ch}"`)
+      throw new Error(`"${ch}" at position ${i + 1} is not allowed. Use numbers, x, + - * / ^, ( ) and =`)
     }
   }
   return tokens
