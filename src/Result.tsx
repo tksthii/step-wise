@@ -74,7 +74,9 @@ export function Result({ result }: { result: SolveResult }) {
     case 'linear':
       return (
         <>
-          <Alert message={result.message} />
+          <p className="info" role="status">
+            This is a linear equation, not a quadratic, but here's how to solve it.
+          </p>
           <Steps heading="Solve the linear equation" steps={result.steps} />
           <Answer>
             <TeX math={`x = ${new Polynomial([result.root]).toLatex()}`} />

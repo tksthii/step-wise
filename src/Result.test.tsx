@@ -62,9 +62,12 @@ describe('Result messages', () => {
     expect(html).not.toContain('<section')
   })
 
-  it('linear: alert, its steps, and the answer', () => {
+  it('linear: a neutral info note (not red), its steps, and the answer', () => {
     const html = render('2x + 3 = 7')
-    expect(alert(html)).toBe('This is a linear equation')
+    expect(alert(html)).toBeUndefined()
+    expect(html).toContain(
+      '<p class="info" role="status">This is a linear equation, not a quadratic, but here&#x27;s how to solve it.</p>',
+    )
     expect(html).toContain('Divide both sides by 2')
     expect(html.slice(html.indexOf('class="roots"'))).toContain('class="katex"')
   })
