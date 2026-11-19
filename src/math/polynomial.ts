@@ -21,4 +21,9 @@ export class Polynomial {
     if (!Number.isInteger(n) || n < 0) throw new Error('Power must be a non-negative integer')
     return this.coeffs[n] ?? ZERO
   }
+
+  add(other: Polynomial): Polynomial {
+    const length = Math.max(this.coeffs.length, other.coeffs.length)
+    return new Polynomial(Array.from({ length }, (_, i) => this.coefficient(i).add(other.coefficient(i))))
+  }
 }

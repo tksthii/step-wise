@@ -38,3 +38,17 @@ describe('Polynomial create, degree, coefficient', () => {
     expect(() => p.coefficient(1.5)).toThrow()
   })
 })
+
+// builds a polynomial from integer coefficients, lowest power first
+const poly = (...cs: number[]) => new Polynomial(cs.map((c) => r(c)))
+
+describe('Polynomial add', () => {
+  it('adds like terms', () => {
+    // (x^2 + 2x) + (3x - 5) = x^2 + 5x - 5
+    expect(poly(0, 2, 1).add(poly(-5, 3))).toEqual(poly(-5, 5, 1))
+  })
+
+  it('drops terms that cancel', () => {
+    expect(poly(1, 0, 2).add(poly(0, 0, -2))).toEqual(poly(1))
+  })
+})
