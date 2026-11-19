@@ -18,7 +18,7 @@ interface IdentityMatch {
 }
 
 // (a+b)^2, (a-b)^2, ... keyed by the inner sign and the exponent
-const POWER_IDENTITIES: Record<string, IdentityNumber> = { '+2': 1, '-2': 2 }
+const POWER_IDENTITIES: Record<string, IdentityNumber> = { '+2': 1, '-2': 2, '+3': 4 }
 
 function matchIdentity(e: Extract<Expr, { type: 'binary' }>): IdentityMatch | null {
   const { op, left, right } = e
