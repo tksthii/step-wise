@@ -17,10 +17,14 @@ interface IdentityMatch {
   b: Expr
 }
 
+// (a+b)^2, (a-b)^2, ... keyed by the inner sign and the exponent
+const POWER_IDENTITIES: Record<string, IdentityNumber> = { '+2': 1, '-2': 2 }
+
 function matchIdentity(e: Extract<Expr, { type: 'binary' }>): IdentityMatch | null {
   const { op, left, right } = e
   if (op === '^' && right.type === 'number' && left.type === 'binary') {
-    if (left.op === '+' && right.text === '2') return { identity: 1, a: left.left, b: left.right }
+    const identity = POWER_IDENTITIES[left.op + right.text]
+    if (identity) return { identity, a: left.left, b: left.right }
   }
   return null
 }

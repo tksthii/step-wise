@@ -24,3 +24,12 @@ describe('expand', () => {
     expect(steps[0].explanation).toContain('a = x and b = 1')
   })
 })
+
+describe('expand identity 2', () => {
+  it('(A-B)^2', () => {
+    const { polynomial, steps } = run('(2x-3)^2')
+    expect(polynomial.toString()).toBe('4x^2 - 12x + 9')
+    expect(steps.map((s) => s.identity)).toEqual([2])
+    expect(steps[0].explanation).toContain('a = 2x and b = 3')
+  })
+})
