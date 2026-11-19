@@ -31,4 +31,14 @@ export class Polynomial {
     const length = Math.max(this.coeffs.length, other.coeffs.length)
     return new Polynomial(Array.from({ length }, (_, i) => this.coefficient(i).subtract(other.coefficient(i))))
   }
+
+  multiply(other: Polynomial): Polynomial {
+    const result = Array.from({ length: this.coeffs.length + other.coeffs.length }, () => ZERO)
+    this.coeffs.forEach((a, i) => {
+      other.coeffs.forEach((b, j) => {
+        result[i + j] = result[i + j].add(a.multiply(b))
+      })
+    })
+    return new Polynomial(result)
+  }
 }

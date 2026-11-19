@@ -63,3 +63,21 @@ describe('Polynomial subtract', () => {
     expect(poly(3, 1).subtract(poly(3, 1)).degree()).toBe(-1)
   })
 })
+
+describe('Polynomial multiply', () => {
+  it('multiplies term by term and collects', () => {
+    // (x - 3)(x + 1) = x^2 - 2x - 3
+    expect(poly(-3, 1).multiply(poly(1, 1))).toEqual(poly(-3, -2, 1))
+    // 3x(x - 2) = 3x^2 - 6x
+    expect(poly(0, 3).multiply(poly(-2, 1))).toEqual(poly(0, -6, 3))
+  })
+
+  it('works with fractions', () => {
+    // (1/2 x)(4x) = 2x^2
+    expect(new Polynomial([r(0), r(1, 2)]).multiply(poly(0, 4))).toEqual(poly(0, 0, 2))
+  })
+
+  it('anything times zero is zero', () => {
+    expect(poly(1, 2, 3).multiply(poly()).degree()).toBe(-1)
+  })
+})
