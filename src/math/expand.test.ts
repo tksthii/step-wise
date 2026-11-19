@@ -56,3 +56,11 @@ describe('expand identity 4', () => {
     expect(steps[0].math).toBe('(x + 1)^3 = x^3 + 3x^2 + 3x + 1')
   })
 })
+
+describe('expand identity 5', () => {
+  it('(A-B)^3', () => {
+    const { polynomial, steps } = run('(x-2)^3')
+    expect(polynomial.toString()).toBe('x^3 - 6x^2 + 12x - 8')
+    expect(steps.map((s) => s.identity)).toEqual([5])
+  })
+})
