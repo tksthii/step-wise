@@ -18,6 +18,8 @@ export interface Equation {
 //   unary    = '-' unary | power
 //   power    = primary ('^' unary)?     right side is unary, so 2^-1 and 2^3^2 work
 //   primary  = number | 'x' | '(' sum ')'
+const text = (t: Token) => (t.type === 'number' ? t.text : t.type)
+
 function makeParser(tokens: Token[]) {
   let i = 0
   const peek = () => tokens[i]?.type
@@ -56,37 +58,77 @@ function makeParser(tokens: Token[]) {
   }
 
   function primary(): Expr {
-    const token = tokens[i++]
-    if (token?.type === 'number') return { type: 'number', text: token.text }
-    if (token?.type === 'x') return { type: 'x' }
-    if (token?.type === '(') {
-      const inner = sum()
-      if (tokens[i++]?.type !== ')') throw new Error('Expected )')
-      return inner
+    const token = tokens[i]
+    if (token?.type === 'number') {
+      i++
+      return { type: 'number', text: token.text }
     }
-    throw new Error('Expected a number, x or (')
+    if (token?.type === 'x') {
+      i++
+      return { type: 'x' }
+    }
+    if (token?.type === '(') {
+      i++
+      const inner = sum()
+      if (peek() === ')') {
+        i++
+        return inner
+      }
+      if (peek() === undefined || peek() === '=') throw new Error('Missing closing parenthesis')
+      throw strayAfterValue()
+    }
+    throw missingValue()
   }
 
-  function end() {
-    if (peek() === '=') throw new Error('Only one = sign is allowed')
-    if (i < tokens.length) throw new Error('Unexpected token')
+  // A number, x or ( was needed at position i; explain what the student left out.
+  function missingValue(): Error {
+    const token = tokens[i]
+    const prev = tokens[i - 1]
+    if (!token) {
+      if (!prev) return new Error('Type an equation to solve')
+      if (prev.type === '=') return new Error('Nothing after =')
+      return new Error(`Something is missing after ${prev.type}`)
+    }
+    if (token.type === '=' && !prev) return new Error('Nothing before =')
+    if (token.type === ')') {
+      if (prev?.type === '(') return new Error('The parentheses () are empty')
+      if (!prev) return new Error('There is a ) without a matching (')
+    }
+    if (!prev || prev.type === '(' || prev.type === '=') {
+      return new Error(`Something is missing before ${token.type}`)
+    }
+    return new Error(`Something is missing after ${prev.type}`)
+  }
+
+  // A complete value was followed by something that cannot come next.
+  function strayAfterValue(): Error {
+    const token = tokens[i]
+    const prev = tokens[i - 1]
+    if (token.type === ')') return new Error('There is a ) without a matching (')
+    return new Error(`Missing an operator between ${text(prev)} and ${text(token)}`)
+  }
+
+  function end(equalsMessage: string) {
+    if (i === tokens.length) return
+    if (peek() === '=') throw new Error(equalsMessage)
+    throw strayAfterValue()
   }
 
   return {
     expression(): Expr {
       const expr = sum()
-      end()
+      end('An = sign is not allowed here')
       return expr
     },
     equation(): Equation {
       const left = sum()
       if (peek() !== '=') {
-        end()
+        end('Only one = sign is allowed')
         return { left, right: { type: 'number', text: '0' } }
       }
       i++
       const right = sum()
-      end()
+      end('Only one = sign is allowed')
       return { left, right }
     },
   }

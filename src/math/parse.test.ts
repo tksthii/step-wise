@@ -85,3 +85,36 @@ describe('parseEquation', () => {
     expect(() => eq('x = 1 = 2')).toThrow('Only one = sign is allowed')
   })
 })
+
+describe('parseEquation friendly errors', () => {
+  const cases: [string, string][] = [
+    ['', 'Type an equation to solve'],
+    ['(x+1', 'Missing closing parenthesis'],
+    ['(x+1 = 2', 'Missing closing parenthesis'],
+    ['x+1)', 'There is a ) without a matching ('],
+    ['()', 'The parentheses () are empty'],
+    ['x^2 + (', 'Something is missing after ('],
+    ['x^2 =', 'Nothing after ='],
+    ['= 5', 'Nothing before ='],
+    ['x + = 2', 'Something is missing after +'],
+    ['x +', 'Something is missing after +'],
+    ['x * * 2', 'Something is missing after *'],
+    ['*x', 'Something is missing before *'],
+    ['2 3', 'Missing an operator between 2 and 3'],
+    ['x2', 'Missing an operator between x and 2'],
+  ]
+
+  it.each(cases)('%j -> %s', (input, message) => {
+    expect(() => parseEquation(tokenize(input))).toThrow(message)
+  })
+
+  it('never uses programmer words like "token" in messages', () => {
+    for (const [input] of cases) {
+      try {
+        parseEquation(tokenize(input))
+      } catch (e) {
+        expect((e as Error).message).not.toMatch(/token|expected|unexpected/i)
+      }
+    }
+  })
+})
