@@ -50,3 +50,11 @@ describe('Rational add', () => {
     expect(() => big.add(big)).toThrow('safe range')
   })
 })
+
+describe('Rational subtract', () => {
+  it('subtracts and reduces', () => {
+    expect(new Rational(1, 2).subtract(new Rational(1, 3))).toEqual(new Rational(1, 6))
+    expect(new Rational(1, 4).subtract(new Rational(3, 4))).toEqual(new Rational(-1, 2))
+    expect(new Rational(2).subtract(new Rational(2))).toEqual(new Rational(0))
+  })
+})
