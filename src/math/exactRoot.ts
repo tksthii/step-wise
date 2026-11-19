@@ -44,4 +44,11 @@ export class ExactRoot {
     if (this.p === 0) return `x = \\pm \\frac{${radical}}{${this.d}}`
     return `x = \\frac{${this.p} \\pm ${radical}}{${this.d}}`
   }
+
+  /** Decimal values in the same order as rationalRoots: (p+q√n)/d first; one value for a repeated root. */
+  decimals(): number[] {
+    if (this.q === 0) return [this.p / this.d]
+    const root = this.q * Math.sqrt(this.n)
+    return [(this.p + root) / this.d, (this.p - root) / this.d]
+  }
 }

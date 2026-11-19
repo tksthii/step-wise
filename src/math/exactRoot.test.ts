@@ -70,3 +70,16 @@ describe('ExactRoot toLatex', () => {
     expect(new ExactRoot(p, q, n, d).toLatex()).toBe(expected)
   })
 })
+
+describe('ExactRoot decimals', () => {
+  it('approximates both roots, + root first', () => {
+    const [plus, minus] = new ExactRoot(2, 2, 5, 2).decimals() // 1 ± √5
+    expect(plus).toBeCloseTo(3.2360679, 6)
+    expect(minus).toBeCloseTo(-1.2360679, 6)
+  })
+
+  it('gives exact values for rational roots and one value for a repeated root', () => {
+    expect(new ExactRoot(-3, 1, 81, 6).decimals()).toEqual([1, -2])
+    expect(new ExactRoot(-2, 1, 0, 2).decimals()).toEqual([-1])
+  })
+})
