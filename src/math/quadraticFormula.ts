@@ -116,4 +116,4 @@ function formulaSteps(A: number, B: number, D: number, roots: ExactRoot): Step[]
 }
 
 // toFixed(2) can give "-0.00"; students should see "0.00"
-const twoPlaces = (v: number) => (Math.abs(v) < 0.005 ? 0 : v).toFixed(2)
+export const twoPlaces = (v: number) => (Math.abs(v) < 0.005 ? 0 : v).toFixed(2)
