@@ -101,3 +101,19 @@ describe('Polynomial power', () => {
     expect(() => poly(1, 1).power(0.5)).toThrow()
   })
 })
+
+describe('Polynomial toString', () => {
+  it('writes student-style polynomials', () => {
+    expect(poly(-6, -4, 2).toString()).toBe('2x^2 - 4x - 6')
+    expect(poly(1, 0, 1).toString()).toBe('x^2 + 1')
+    expect(poly(0, -1).toString()).toBe('-x')
+    expect(poly().toString()).toBe('0')
+    expect(poly(0, 0, 0, 1).toString()).toBe('x^3')
+    expect(poly(-7).toString()).toBe('-7')
+  })
+
+  it('brackets fractional coefficients of x so 1/2x is not ambiguous', () => {
+    expect(new Polynomial([r(-3, 4), r(1, 2), r(-1)]).toString()).toBe('-x^2 + (1/2)x - 3/4')
+    expect(new Polynomial([r(0), r(-2, 3)]).toString()).toBe('-(2/3)x')
+  })
+})

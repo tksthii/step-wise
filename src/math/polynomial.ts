@@ -49,4 +49,21 @@ export class Polynomial {
     for (let i = 0; i < n; i++) result = result.multiply(this)
     return result
   }
+
+  /** Student style, highest power first: "2x^2 - 4x - 6", "-x", "(1/2)x + 3", "0". */
+  toString(): string {
+    const terms: string[] = []
+    for (let k = this.coeffs.length - 1; k >= 0; k--) {
+      const c = this.coeffs[k]
+      if (c.num === 0) continue
+      const abs = new Rational(Math.abs(c.num), c.den)
+      let coef = abs.toString()
+      if (k > 0 && abs.num === 1 && abs.den === 1) coef = ''
+      else if (k > 0 && abs.den !== 1) coef = `(${coef})`
+      const term = coef + (k === 0 ? '' : k === 1 ? 'x' : `x^${k}`)
+      if (terms.length === 0) terms.push(c.num < 0 ? `-${term}` : term)
+      else terms.push(c.num < 0 ? `- ${term}` : `+ ${term}`)
+    }
+    return terms.length === 0 ? '0' : terms.join(' ')
+  }
 }
