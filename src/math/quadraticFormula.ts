@@ -82,7 +82,7 @@ export const quadraticFormula: SolvingMethod = {
 }
 
 function formulaSteps(A: number, B: number, D: number, roots: ExactRoot): Step[] {
-  const minusB = B < 0 ? `-(${B})` : `-${B}`
+  const minusB = B < 0 ? `-(${B})` : B === 0 ? "0" : `-${B}`
   const top = `${-B} \\pm \\sqrt{${D}}`
   let simplified = `x = \\frac{${top}}{${2 * A}}`
   const { coefficient: k, radicand: m } = simplifySqrt(D)

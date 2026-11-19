@@ -107,3 +107,11 @@ describe('quadraticFormula steps: formula, simplify, roots', () => {
     expect(steps.at(-1)?.explanation).toContain('only one root')
   })
 })
+
+describe('quadraticFormula never shows -0', () => {
+  it('b = 0 substitutes 0 for -b', () => {
+    const steps = solve('-x^2 + 4 = 0').steps
+    expect(steps.every((s) => !/-0(?![.\d])/.test(s.math))).toBe(true)
+    expect(steps.find((s) => s.title === 'Apply the quadratic formula')?.math).toContain('\\frac{0 \\pm')
+  })
+})
