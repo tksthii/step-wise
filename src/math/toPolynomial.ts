@@ -19,8 +19,17 @@ export function toPolynomial(expr: Expr): Polynomial {
       return new Polynomial([new Rational(0), new Rational(1)])
     case 'neg':
       return new Polynomial([]).subtract(toPolynomial(expr.arg))
-    default:
-      // shortcut: operators need Rational/Polynomial arithmetic, which is not written yet
-      throw new Error(`Converting "${expr.type}" is not supported yet`)
+    case 'binary': {
+      const left = toPolynomial(expr.left)
+      const right = toPolynomial(expr.right)
+      switch (expr.op) {
+        case '+':
+          return left.add(right)
+        case '-':
+          return left.subtract(right)
+        default:
+          throw new Error(`Converting "${expr.op}" is not supported yet`)
+      }
+    }
   }
 }

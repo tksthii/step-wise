@@ -39,3 +39,10 @@ describe('toPolynomial operators', () => {
     expect(convert('--3')).toEqual(poly(3))
   })
 })
+
+describe('toPolynomial sums', () => {
+  it('adds and subtracts, collecting like terms', () => {
+    expect(convert('x + 3 - x - x')).toEqual(poly(3, -1))
+    expect(convert('0.5 + x - 0.25')).toEqual(new Polynomial([r(1, 4), r(1)]))
+  })
+})
