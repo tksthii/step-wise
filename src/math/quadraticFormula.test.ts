@@ -41,3 +41,39 @@ describe('quadraticFormula roots', () => {
     expect(solve('x^2/2 - x/2 - 1 = 0').roots?.rationalRoots()).toEqual([r(2), r(-1)])
   })
 })
+
+const lines = (text: string) => solve(text).steps.map((s) => `${s.title}: ${s.math}`)
+
+describe('quadraticFormula steps: a, b, c and the discriminant', () => {
+  it('2x^2 - 4x - 6 = 0 has two real roots', () => {
+    expect(lines('2x^2 - 4x - 6 = 0').slice(0, 3)).toEqual([
+      'Identify a, b and c: a = 2, \\quad b = -4, \\quad c = -6',
+      'Find the discriminant: b^2 - 4ac = (-4)^2 - 4(2)(-6) = 16 + 48 = 64',
+      'Two real roots: b^2 - 4ac = 64 > 0',
+    ])
+  })
+
+  it('x^2 + 2x + 1 = 0 has one real root', () => {
+    expect(lines('x^2 + 2x + 1 = 0').slice(1, 3)).toEqual([
+      'Find the discriminant: b^2 - 4ac = 2^2 - 4(1)(1) = 4 - 4 = 0',
+      'One real root: b^2 - 4ac = 0',
+    ])
+  })
+
+  it('x^2 + 1 = 0 stops after explaining there are no real roots', () => {
+    const { steps } = solve('x^2 + 1 = 0')
+    expect(steps.map((s) => `${s.title}: ${s.math}`)).toEqual([
+      'Identify a, b and c: a = 1, \\quad b = 0, \\quad c = 1',
+      'Find the discriminant: b^2 - 4ac = 0^2 - 4(1)(1) = 0 - 4 = -4',
+      'No real roots: b^2 - 4ac = -4 < 0',
+    ])
+    expect(steps[2].explanation).toContain('not a real number')
+  })
+
+  it('clears fractions before using the formula', () => {
+    expect(lines('x^2/2 - x/2 - 1 = 0').slice(0, 2)).toEqual([
+      'Identify a, b and c: a = \\frac{1}{2}, \\quad b = -\\frac{1}{2}, \\quad c = -1',
+      'Clear the fractions: x^2 - x - 2 = 0',
+    ])
+  })
+})
