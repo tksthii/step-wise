@@ -27,3 +27,9 @@ describe('simplifySqrt', () => {
     expect(() => simplifySqrt(2.5)).toThrow()
   })
 })
+
+describe('simplifySqrt of a negative number', () => {
+  it('says it is not real', () => {
+    expect(() => simplifySqrt(-4)).toThrow('The square root of -4 is not a real number')
+  })
+})
