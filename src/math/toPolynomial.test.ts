@@ -29,3 +29,13 @@ describe('toPolynomial leaves', () => {
     expect(() => convert('0.0000000000000000001')).toThrow('too many digits')
   })
 })
+
+// builds a polynomial from integer coefficients, lowest power first
+const poly = (...cs: number[]) => new Polynomial(cs.map((c) => r(c)))
+
+describe('toPolynomial operators', () => {
+  it('negation', () => {
+    expect(convert('-x')).toEqual(poly(0, -1))
+    expect(convert('--3')).toEqual(poly(3))
+  })
+})

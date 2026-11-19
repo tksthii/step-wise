@@ -17,6 +17,8 @@ export function toPolynomial(expr: Expr): Polynomial {
       return new Polynomial([parseNumber(expr.text)])
     case 'x':
       return new Polynomial([new Rational(0), new Rational(1)])
+    case 'neg':
+      return new Polynomial([]).subtract(toPolynomial(expr.arg))
     default:
       // shortcut: operators need Rational/Polynomial arithmetic, which is not written yet
       throw new Error(`Converting "${expr.type}" is not supported yet`)
