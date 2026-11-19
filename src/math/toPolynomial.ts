@@ -27,6 +27,8 @@ export function toPolynomial(expr: Expr): Polynomial {
           return left.add(right)
         case '-':
           return left.subtract(right)
+        case '*':
+          return left.multiply(right)
         default:
           throw new Error(`Converting "${expr.op}" is not supported yet`)
       }

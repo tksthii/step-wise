@@ -46,3 +46,10 @@ describe('toPolynomial sums', () => {
     expect(convert('0.5 + x - 0.25')).toEqual(new Polynomial([r(1, 4), r(1)]))
   })
 })
+
+describe('toPolynomial multiplication', () => {
+  it('multiplies out brackets, including implicit multiplication', () => {
+    expect(convert('3x(x-2)')).toEqual(poly(0, -6, 3))
+    expect(convert('(x-3)(x+1)')).toEqual(poly(-3, -2, 1))
+  })
+})
