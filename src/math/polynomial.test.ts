@@ -81,3 +81,23 @@ describe('Polynomial multiply', () => {
     expect(poly(1, 2, 3).multiply(poly()).degree()).toBe(-1)
   })
 })
+
+describe('Polynomial power', () => {
+  it('raises to a whole-number power', () => {
+    // (x + 1)^2 = x^2 + 2x + 1
+    expect(poly(1, 1).power(2)).toEqual(poly(1, 2, 1))
+    // (x + 1)^3 = x^3 + 3x^2 + 3x + 1
+    expect(poly(1, 1).power(3)).toEqual(poly(1, 3, 3, 1))
+    expect(poly(-2, 1).power(1)).toEqual(poly(-2, 1))
+  })
+
+  it('anything non-zero to the power 0 is 1', () => {
+    expect(poly(5, 1).power(0)).toEqual(poly(1))
+  })
+
+  it('rejects 0^0 and negative or fractional powers', () => {
+    expect(() => poly().power(0)).toThrow('0^0 is undefined')
+    expect(() => poly(1, 1).power(-1)).toThrow()
+    expect(() => poly(1, 1).power(0.5)).toThrow()
+  })
+})

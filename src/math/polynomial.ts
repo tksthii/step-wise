@@ -41,4 +41,12 @@ export class Polynomial {
     })
     return new Polynomial(result)
   }
+
+  power(n: number): Polynomial {
+    if (!Number.isInteger(n) || n < 0) throw new Error('Exponent must be a whole number')
+    if (n === 0 && this.coeffs.length === 0) throw new Error('0^0 is undefined')
+    let result = new Polynomial([new Rational(1)])
+    for (let i = 0; i < n; i++) result = result.multiply(this)
+    return result
+  }
 }
