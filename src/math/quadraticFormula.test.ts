@@ -77,3 +77,33 @@ describe('quadraticFormula steps: a, b, c and the discriminant', () => {
     ])
   })
 })
+
+describe('quadraticFormula steps: formula, simplify, roots', () => {
+  it('2x^2 - 4x - 6 = 0 -> x = 3 or x = -1', () => {
+    expect(lines('2x^2 - 4x - 6 = 0').slice(3)).toEqual([
+      'Apply the quadratic formula: x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{-(-4) \\pm \\sqrt{64}}{2(2)}',
+      'Simplify: x = \\frac{4 \\pm \\sqrt{64}}{4} = \\frac{4 \\pm 8}{4}',
+      'Write the roots: x = 3 \\text{ or } x = -1',
+    ])
+  })
+
+  it('x^2 - 2x - 4 = 0 -> x = 1 ± √5, with decimals', () => {
+    const { steps } = solve('x^2 - 2x - 4 = 0')
+    expect(steps.slice(3).map((s) => `${s.title}: ${s.math}`)).toEqual([
+      'Apply the quadratic formula: x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{-(-2) \\pm \\sqrt{20}}{2(1)}',
+      'Simplify: x = \\frac{2 \\pm \\sqrt{20}}{2} = \\frac{2 \\pm 2\\sqrt{5}}{2}',
+      'Write the roots: x = 1 \\pm \\sqrt{5}',
+    ])
+    expect(steps.at(-1)?.explanation).toContain('x ≈ 3.24 or x ≈ -1.24')
+  })
+
+  it('x^2 + 2x + 1 = 0 -> one root x = -1', () => {
+    const { steps } = solve('x^2 + 2x + 1 = 0')
+    expect(steps.slice(3).map((s) => `${s.title}: ${s.math}`)).toEqual([
+      'Apply the quadratic formula: x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{-2 \\pm \\sqrt{0}}{2(1)}',
+      'Simplify: x = \\frac{-2 \\pm \\sqrt{0}}{2} = \\frac{-2}{2}',
+      'Write the roots: x = -1',
+    ])
+    expect(steps.at(-1)?.explanation).toContain('only one root')
+  })
+})

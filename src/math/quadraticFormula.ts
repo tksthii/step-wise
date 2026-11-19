@@ -1,6 +1,7 @@
 import { ExactRoot } from './exactRoot'
 import { Polynomial } from './polynomial'
 import { gcd, Rational } from './rational'
+import { simplifySqrt } from './sqrt'
 import type { QuadraticEquation, SolvingMethod } from './solvingMethod'
 import type { Step } from './step'
 
@@ -73,7 +74,46 @@ export const quadraticFormula: SolvingMethod = {
     }
     const discriminant = B * B - 4 * A * C
     steps.push(...discriminantSteps(A, B, C, discriminant))
-    const roots = discriminant < 0 ? null : new ExactRoot(-B, 1, discriminant, 2 * A)
+    if (discriminant < 0) return { steps, roots: null }
+    const roots = new ExactRoot(-B, 1, discriminant, 2 * A)
+    steps.push(...formulaSteps(A, B, discriminant, roots))
     return { steps, roots }
   },
 }
+
+function formulaSteps(A: number, B: number, D: number, roots: ExactRoot): Step[] {
+  const minusB = B < 0 ? `-(${B})` : `-${B}`
+  const top = `${-B} \\pm \\sqrt{${D}}`
+  let simplified = `x = \\frac{${top}}{${2 * A}}`
+  const { coefficient: k, radicand: m } = simplifySqrt(D)
+  if (D === 0) simplified += ` = \\frac{${-B}}{${2 * A}}`
+  else if (m === 1) simplified += ` = \\frac{${-B} \\pm ${k}}{${2 * A}}`
+  else if (k > 1) simplified += ` = \\frac{${-B} \\pm ${k}\\sqrt{${m}}}{${2 * A}}`
+
+  const rational = roots.rationalRoots()
+  let explanation: string
+  if (rational?.length === 1) explanation = `There is only one root: x = ${rational[0]}.`
+  else if (rational) {
+    explanation = `The square root is a whole number, so both roots are rational: x = ${rational[0]} or x = ${rational[1]}.`
+  } else {
+    const [plus, minus] = roots.decimals().map(twoPlaces)
+    explanation = `This is the exact answer. As decimals, x ≈ ${plus} or x ≈ ${minus} (rounded to 2 decimal places).`
+  }
+
+  return [
+    {
+      title: 'Apply the quadratic formula',
+      explanation: 'Substitute a, b and c into the quadratic formula.',
+      math: `x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{${minusB} \\pm \\sqrt{${D}}}{2(${A})}`,
+    },
+    {
+      title: 'Simplify',
+      explanation: 'Work out the top and bottom, and simplify the square root if you can.',
+      math: simplified,
+    },
+    { title: 'Write the roots', explanation, math: roots.toLatex() },
+  ]
+}
+
+// toFixed(2) can give "-0.00"; students should see "0.00"
+const twoPlaces = (v: number) => (Math.abs(v) < 0.005 ? 0 : v).toFixed(2)
