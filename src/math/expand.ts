@@ -32,12 +32,22 @@ function matchIdentity(e: Extract<Expr, { type: 'binary' }>): IdentityMatch | nu
       if (p.type === 'binary' && q.type === 'binary' && p.op === '-' && q.op === '+') {
         if (same(p.left, q.left) && same(p.right, q.right)) return { identity: 3, a: p.left, b: p.right }
       }
+      // (a+b)(a^2 - ab + b^2) and (a-b)(a^2 + ab + b^2): check the second factor by value
+      if (p.type === 'binary' && (p.op === '+' || p.op === '-')) {
+        const a = toPolynomial(p.left)
+        const b = toPolynomial(p.right)
+        const squares = a.multiply(a).add(b.multiply(b))
+        const ab = a.multiply(b)
+        const expected = p.op === '+' ? squares.subtract(ab) : squares.add(ab)
+        if (equal(expected, toPolynomial(q))) return { identity: p.op === '+' ? 6 : 7, a: p.left, b: p.right }
+      }
     }
   }
   return null
 }
 
-const same = (a: Expr, b: Expr) => toPolynomial(a).subtract(toPolynomial(b)).degree() === -1
+const equal = (a: Polynomial, b: Polynomial) => a.subtract(b).degree() === -1
+const same = (a: Expr, b: Expr) => equal(toPolynomial(a), toPolynomial(b))
 
 export function expand(expr: Expr): Expansion {
   const steps: Step[] = []

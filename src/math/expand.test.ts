@@ -64,3 +64,22 @@ describe('expand identity 5', () => {
     expect(steps.map((s) => s.identity)).toEqual([5])
   })
 })
+
+describe('expand identities 6 and 7', () => {
+  it('6: (A+B)(A^2 - AB + B^2) = A^3 + B^3', () => {
+    const { polynomial, steps } = run('(x+2)(x^2 - 2x + 4)')
+    expect(polynomial.toString()).toBe('x^3 + 8')
+    expect(steps.map((s) => s.identity)).toEqual([6])
+    expect(steps[0].explanation).toContain('a = x and b = 2')
+  })
+
+  it('7: (A-B)(A^2 + AB + B^2) = A^3 - B^3, either order', () => {
+    const { polynomial, steps } = run('(x^2 + x + 1)(x-1)')
+    expect(polynomial.toString()).toBe('x^3 - 1')
+    expect(steps.map((s) => s.identity)).toEqual([7])
+  })
+
+  it('does not cite 6 or 7 when the second factor is wrong', () => {
+    expect(run('(x+2)(x^2 + 2x + 4)').steps).toEqual([])
+  })
+})
