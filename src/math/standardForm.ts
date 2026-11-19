@@ -17,6 +17,8 @@ export type StandardForm = Common &
   (
     | { kind: 'quadratic'; a: Rational; b: Rational; c: Rational }
     | { kind: 'linear'; message: 'This is a linear equation'; root: Rational }
+    | { kind: 'no-solution'; message: 'This equation has no solution' }
+    | { kind: 'every-x'; message: 'Every x is a solution' }
   )
 
 const latex = (r: Rational) => new Polynomial([r]).toLatex()
@@ -118,9 +120,23 @@ export function toStandardForm(equationText: string): StandardForm {
 
   const common: Common = { steps, original, polynomial }
   if (polynomial.degree() === 1) return solveLinear(common)
+  if (polynomial.degree() <= 0) {
+    const c = polynomial.coefficient(0)
+    const always = c.num === 0
+    steps.push({
+      title: 'All the x terms cancel',
+      explanation: always
+        ? 'Nothing is left but 0 = 0, which is always true. So every value of x makes the equation true.'
+        : `What is left, ${c} = 0, is never true. So no value of x makes the equation true.`,
+      math: `${latex(c)} = 0`,
+    })
+    return always
+      ? { ...common, kind: 'every-x', message: 'Every x is a solution' }
+      : { ...common, kind: 'no-solution', message: 'This equation has no solution' }
+  }
   if (polynomial.degree() !== 2) {
-    // shortcut: constant and higher-degree equations are classified in the next commits
-    throw new Error('Only quadratic and linear equations are handled so far')
+    // shortcut: higher-degree equations are classified in the next commit
+    throw new Error('Only equations up to degree 2 are handled so far')
   }
   return {
     ...common,

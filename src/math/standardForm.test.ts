@@ -113,3 +113,25 @@ describe('toStandardForm linear', () => {
     expect(result.steps.slice(-2).map((s) => s.title)).toEqual(['This is a linear equation', 'Add 5 to both sides'])
   })
 })
+
+describe('toStandardForm with no x left', () => {
+  it('x + 1 = x + 5 has no solution', () => {
+    const result = toStandardForm('x + 1 = x + 5')
+    expect(result.kind).toBe('no-solution')
+    if (result.kind !== 'no-solution') return
+    expect(result.message).toBe('This equation has no solution')
+    expect(result.steps.at(-1)?.math).toBe('-4 = 0')
+  })
+
+  it('2(x+1) = 2x + 2 is true for every x', () => {
+    const result = toStandardForm('2(x+1) = 2x + 2')
+    expect(result.kind).toBe('every-x')
+    if (result.kind !== 'every-x') return
+    expect(result.message).toBe('Every x is a solution')
+    expect(result.steps.at(-1)?.math).toBe('0 = 0')
+  })
+
+  it('(x+1)^2 = x^2 + 2x + 1 is true for every x', () => {
+    expect(toStandardForm('(x+1)^2 = x^2 + 2x + 1').kind).toBe('every-x')
+  })
+})
