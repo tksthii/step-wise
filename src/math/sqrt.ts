@@ -6,6 +6,7 @@ export interface SimplifiedSqrt {
 
 export function simplifySqrt(n: number): SimplifiedSqrt {
   if (!Number.isInteger(n)) throw new Error('simplifySqrt needs an integer')
+  if (n < 0) throw new Error(`The square root of ${n} is not a real number`)
   if (n === 0) return { coefficient: 0, radicand: 1 }
   let coefficient = 1
   let radicand = n
