@@ -30,4 +30,8 @@ export class Rational {
   subtract(other: Rational): Rational {
     return new Rational(this.num * other.den - other.num * this.den, this.den * other.den)
   }
+
+  multiply(other: Rational): Rational {
+    return new Rational(this.num * other.num, this.den * other.den)
+  }
 }

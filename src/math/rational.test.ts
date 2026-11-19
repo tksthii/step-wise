@@ -58,3 +58,11 @@ describe('Rational subtract', () => {
     expect(new Rational(2).subtract(new Rational(2))).toEqual(new Rational(0))
   })
 })
+
+describe('Rational multiply', () => {
+  it('multiplies and reduces', () => {
+    expect(new Rational(2, 3).multiply(new Rational(9, 4))).toEqual(new Rational(3, 2))
+    expect(new Rational(-1, 2).multiply(new Rational(4))).toEqual(new Rational(-2))
+    expect(new Rational(5, 7).multiply(new Rational(0))).toEqual(new Rational(0))
+  })
+})
