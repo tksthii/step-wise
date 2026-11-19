@@ -33,3 +33,20 @@ describe('Rational create + reduce', () => {
     expect(() => new Rational(1, NaN)).toThrow()
   })
 })
+
+describe('Rational add', () => {
+  it('adds and reduces', () => {
+    expect(new Rational(1, 2).add(new Rational(1, 3))).toEqual(new Rational(5, 6))
+    expect(new Rational(1, 6).add(new Rational(1, 3))).toEqual(new Rational(1, 2))
+  })
+
+  it('handles negatives and zero', () => {
+    expect(new Rational(-3, 4).add(new Rational(1, 4))).toEqual(new Rational(-1, 2))
+    expect(new Rational(2, 5).add(new Rational(-2, 5))).toEqual(new Rational(0))
+  })
+
+  it('throws instead of losing precision on huge values', () => {
+    const big = new Rational(Number.MAX_SAFE_INTEGER)
+    expect(() => big.add(big)).toThrow('safe range')
+  })
+})
