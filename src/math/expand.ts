@@ -26,8 +26,18 @@ function matchIdentity(e: Extract<Expr, { type: 'binary' }>): IdentityMatch | nu
     const identity = POWER_IDENTITIES[left.op + right.text]
     if (identity) return { identity, a: left.left, b: left.right }
   }
+  if (op === '*') {
+    for (const [p, q] of [[left, right], [right, left]]) {
+      // (a-b)(a+b): same a and b on both sides, compared by value so (2x-1)(2x+1) matches
+      if (p.type === 'binary' && q.type === 'binary' && p.op === '-' && q.op === '+') {
+        if (same(p.left, q.left) && same(p.right, q.right)) return { identity: 3, a: p.left, b: p.right }
+      }
+    }
+  }
   return null
 }
+
+const same = (a: Expr, b: Expr) => toPolynomial(a).subtract(toPolynomial(b)).degree() === -1
 
 export function expand(expr: Expr): Expansion {
   const steps: Step[] = []

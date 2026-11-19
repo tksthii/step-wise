@@ -33,3 +33,17 @@ describe('expand identity 2', () => {
     expect(steps[0].explanation).toContain('a = 2x and b = 3')
   })
 })
+
+describe('expand identity 3', () => {
+  it('(A-B)(A+B) in either order', () => {
+    const { polynomial, steps } = run('(x-3)(x+3)')
+    expect(polynomial.toString()).toBe('x^2 - 9')
+    expect(steps.map((s) => s.identity)).toEqual([3])
+    expect(steps[0].explanation).toContain('a = x and b = 3')
+    expect(run('(2x+1)(2x-1)').steps.map((s) => s.identity)).toEqual([3])
+  })
+
+  it('does not cite it when the terms differ', () => {
+    expect(run('(x-3)(x+2)').steps).toEqual([])
+  })
+})
