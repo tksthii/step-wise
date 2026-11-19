@@ -55,11 +55,14 @@ export function expand(expr: Expr): Expansion {
     const match = matchIdentity(node)
     if (!match) return
     const { number, name, latex } = IDENTITIES[match.identity - 1]
+    // identities 3, 6, 7 are stored factored-on-the-right; expanding reads them right to left
+    const [lhs, rhs] = latex.split('=').map((s) => s.trim())
+    const [shape, expanded] = lhs.startsWith('(') ? [lhs, rhs] : [rhs, lhs]
     steps.push({
       title: `Use identity ${number}: ${name}`,
       explanation:
-        `This has the shape ${latex.split('=')[0].trim()} with a = ${exprToText(match.a)} and b = ${exprToText(match.b)}. ` +
-        `Expand it with ${latex}.`,
+        `This has the shape ${shape} with a = ${exprToText(match.a)} and b = ${exprToText(match.b)}. ` +
+        `Expand it with ${shape} = ${expanded}.`,
       math: `${exprToLatex(node)} = ${result.toLatex()}`,
       identity: number,
     })

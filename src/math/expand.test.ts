@@ -83,3 +83,15 @@ describe('expand identities 6 and 7', () => {
     expect(run('(x+2)(x^2 + 2x + 4)').steps).toEqual([])
   })
 })
+
+describe('expand explanations read in the expanding direction', () => {
+  it.each([
+    ['(x-2)(x+2)', 'This has the shape (a-b)(a+b)', '(a-b)(a+b) = a^2-b^2'],
+    ['(x+2)(x^2 - 2x + 4)', 'This has the shape (a+b)(a^2 - ab + b^2)', '(a+b)(a^2 - ab + b^2) = a^3+b^3'],
+    ['(x+1)^2', 'This has the shape (a+b)^2', '(a+b)^2 = a^2 + 2ab + b^2'],
+  ])('%s', (input, shape, formula) => {
+    const { explanation } = run(input).steps[0]
+    expect(explanation).toContain(shape)
+    expect(explanation).toContain(`Expand it with ${formula}.`)
+  })
+})
