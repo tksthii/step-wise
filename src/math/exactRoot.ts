@@ -1,4 +1,4 @@
-import { gcd } from './rational'
+import { gcd, Rational } from './rational'
 import { simplifySqrt } from './sqrt'
 
 /** The pair of roots (p ± q√n) / d, kept simplified. q = 0 and n = 0 means a single repeated root p/d. */
@@ -25,5 +25,12 @@ export class ExactRoot {
     this.q = q / g
     this.n = n
     this.d = d / g
+  }
+
+  /** The roots as exact fractions when there is no square root left ((p+q)/d first), otherwise null. */
+  rationalRoots(): Rational[] | null {
+    if (this.n === 0) return [new Rational(this.p, this.d)]
+    if (this.n !== 1) return null
+    return [new Rational(this.p + this.q, this.d), new Rational(this.p - this.q, this.d)]
   }
 }
