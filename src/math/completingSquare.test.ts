@@ -71,6 +71,44 @@ describe('completingSquare', () => {
     )
   })
 
+  it('x^2 + 1 = 0: b = 0 is already a square, and it is negative', () => {
+    const { steps, roots } = solve('x^2 + 1 = 0')
+    expect(lines('x^2 + 1 = 0')).toEqual([
+      'Move the constant to the right side: x^2 = -1',
+      'No real roots: x^2 = -1',
+    ])
+    expect(steps[1].explanation).toBe("A square can't be negative, so there are no real roots.")
+    expect(roots).toBeNull()
+  })
+
+  it('x^2 + 2x + 5 = 0: the right side ends up negative', () => {
+    expect(lines('x^2 + 2x + 5 = 0').slice(2)).toEqual([
+      'Use identity 1: Square of a sum: (x + 1)^2 = -4',
+      'No real roots: (x + 1)^2 = -4',
+    ])
+    expect(solve('x^2 + 2x + 5 = 0').roots).toBeNull()
+  })
+
+  it('x^2 - 9 = 0: b = 0, nothing to complete', () => {
+    expect(lines('x^2 - 9 = 0').map((l) => l.split(':')[0])).toEqual([
+      'Move the constant to the right side',
+      'Take the square root of both sides',
+      'Write the roots',
+    ])
+  })
+
+  it('x^2 + 6x = 0: c = 0, nothing to move', () => {
+    const { steps } = solve('x^2 + 6x = 0')
+    expect(lines('x^2 + 6x = 0').slice(0, 2)).toEqual([
+      'Complete the square: x^2 + 6x + 9 = 9',
+      'Use identity 1: Square of a sum: (x + 3)^2 = 9',
+    ])
+    expect(steps[1].explanation).toBe(
+      'The left side has the shape $a^2 + 2ab + b^2$ with $a = x$ and $b = 3$, so it equals $(a+b)^2$.',
+    )
+    expect(steps.at(-1)?.math).toBe('x = 0 \\text{ or } x = -6')
+  })
+
   it('x^2 + x - 1 = 0: exact fractions', () => {
     const { steps } = solve('x^2 + x - 1 = 0')
     expect(lines('x^2 + x - 1 = 0').slice(1, 4)).toEqual([

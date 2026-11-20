@@ -41,6 +41,12 @@ export const completingSquare: SolvingMethod = {
       })
     }
 
+    // with no x term, x^2 = right is already a square
+    if (b.num === 0) {
+      const rest = solveSquare(eq, new Polynomial([ZERO, ONE]), right)
+      return { steps: [...steps, ...rest.steps], roots: rest.roots }
+    }
+
     const half = b.divide(new Rational(2))
     const added = half.multiply(half)
     const total = right.add(added)
@@ -57,7 +63,9 @@ export const completingSquare: SolvingMethod = {
     const abs = new Rational(Math.abs(half.num), half.den)
     steps.push({
       title: `Use identity ${number}: ${name}`,
-      explanation: `The left side has the shape $${shape}$ with $a = x$ and $b = ${fraction(abs)}$, so it equals $${factored}$. On the right, $${sum} = ${fraction(total)}$.`,
+      explanation:
+        `The left side has the shape $${shape}$ with $a = x$ and $b = ${fraction(abs)}$, so it equals $${factored}$.` +
+        (c.num === 0 ? '' : ` On the right, $${sum} = ${fraction(total)}$.`),
       math: `${squareOf(inner)} = ${fraction(total)}`,
       identity: number,
     })
