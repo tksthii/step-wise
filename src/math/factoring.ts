@@ -1,7 +1,7 @@
 import { ExactRoot } from './exactRoot'
 import { Polynomial } from './polynomial'
 import { wholeCoefficients } from './quadraticFormula'
-import { Rational } from './rational'
+import { gcd, Rational } from './rational'
 import type { QuadraticEquation, SolvingMethod } from './solvingMethod'
 import type { Step } from './step'
 
@@ -14,7 +14,10 @@ interface Factor {
 const signed = (n: number, suffix = '') => `${n < 0 ? '-' : '+'} ${Math.abs(n)}${suffix}`
 const linear = ({ q, p }: Factor) => `${q === 1 ? '' : q}x${p === 0 ? '' : ` ${signed(-p)}`}`
 const bracketed = (f: Factor) => (f.p === 0 ? linear(f) : `(${linear(f)})`)
-const product = (factors: Factor[]) => factors.map(bracketed).join('')
+const same = (f: Factor, g: Factor) => f.q === g.q && f.p === g.p
+const product = ([f, g]: Factor[]) => (same(f, g) ? `${bracketed(f)}^2` : bracketed(f) + bracketed(g))
+// the constant in front of a product: 2(...), -(...), or nothing for 1
+const prefix = (k: number) => (k === 1 ? '' : k === -1 ? '-' : `${k}`)
 const trinomial = (a: number, b: number, c: number) => new Polynomial([c, b, a].map((n) => new Rational(n))).toLatex()
 const fraction = (r: Rational) => new Polynomial([r]).toLatex()
 
@@ -33,15 +36,50 @@ function factorsFromRoots(a: number, b: number, c: number): [Factor, Factor] {
   return [factor(-b + s), factor(-b - s)]
 }
 
-function zeroProductSteps(factors: Factor[]): Step[] {
-  const roots = factors.map(({ q, p }) => `x = ${fraction(new Rational(p, q))}`)
+// k = the common factor taken out (negative when a < 0); c = 0 means x itself is part of it
+function commonFactorStep(A: number, B: number, C: number, k: number): Step {
+  const withX = C === 0
+  const divisor = `${Math.abs(k) === 1 ? '' : Math.abs(k)}${withX ? 'x' : ''}`
+  const out = `${k === -1 && !withX ? '-1' : prefix(k)}${withX ? 'x' : ''}`
+  const explanation =
+    divisor === ''
+      ? 'The $x^2$ term is negative, so factor out $-1$ to make it positive.'
+      : `Every term is divisible by $${divisor}$${k < 0 ? ' and the $x^2$ term is negative' : ''}, so factor out $${out}$.`
+  const inside = withX ? linear({ q: A / k, p: -B / k || 0 }) : trinomial(A / k, B / k, C / k)
+  return {
+    title: 'Take out the common factor',
+    explanation,
+    math: `${trinomial(A, B, C)} = ${prefix(k)}${withX ? 'x' : ''}(${inside})`,
+  }
+}
+
+function zeroProductSteps(k: number, factors: [Factor, Factor]): Step[] {
+  const repeated = same(...factors)
+  const each = repeated ? [factors[0]] : factors
+  const roots = each.map(({ q, p }) => `x = ${fraction(new Rational(p, q))}`)
+  const constant = k === 1 ? 'Set each factor equal to 0.' : `$${k}$ can't be 0, so set each factor with $x$ equal to 0.`
   return [
     {
       title: 'Use the zero product property',
-      explanation: 'If a product is 0, at least one of the factors must be 0. Set each factor equal to 0.',
-      math: `${product(factors)} = 0 \\Rightarrow ${factors.map((f) => `${linear(f)} = 0`).join(' \\text{ or } ')}`,
+      explanation: `If a product is 0, at least one of the factors must be 0. ${constant}`,
+      math: `${prefix(k)}${product(factors)} = 0 \\Rightarrow ${each.map((f) => `${linear(f)} = 0`).join(' \\text{ or } ')}`,
     },
-    { title: 'Write the roots', explanation: 'Solve each equation for $x$.', math: roots.join(' \\text{ or } ') },
+    {
+      title: 'Write the roots',
+      explanation: repeated ? 'Both factors are the same, so there is only one root.' : 'Solve each equation for $x$.',
+      math: roots.join(' \\text{ or } '),
+    },
+  ]
+}
+
+function trinomialSteps(a: number, b: number, c: number, factors: [Factor, Factor]): Step[] {
+  const [m, n] = factors.map((f) => -f.p)
+  return [
+    {
+      title: 'Factor the simple trinomial',
+      explanation: `Find two numbers that multiply to $c = ${c}$ and add to $b = ${b}$: $${m}$ and $${n}$.`,
+      math: `${trinomial(a, b, c)} = ${product(factors)}`,
+    },
   ]
 }
 
@@ -63,16 +101,21 @@ export const factoring: SolvingMethod = {
     const applicable = factoring.applies(eq)
     if (!applicable.ok) throw new Error(applicable.reason)
     const { A, B, C } = wholeCoefficients(eq)
-    const factors = factorsFromRoots(A, B, C)
-    const [m, n] = factors.map((f) => -f.p)
-    const steps: Step[] = [
-      {
-        title: 'Factor the simple trinomial',
-        explanation: `Find two numbers that multiply to $c = ${C}$ and add to $b = ${B}$: $${m}$ and $${n}$.`,
-        math: `${trinomial(A, B, C)} = ${product(factors)}`,
-      },
-      ...zeroProductSteps(factors),
-    ]
+    const steps: Step[] = []
+    // common factor first, negative when a < 0 so the x^2 term inside is positive
+    const g = C === 0 ? gcd(A, B) : gcd(gcd(A, B), C)
+    const k = A < 0 ? -g : g
+    const [a, b, c] = [A, B, C].map((n) => n / k || 0) // `|| 0` avoids -0
+    let factors: [Factor, Factor]
+    if (c === 0) {
+      factors = [{ q: 1, p: 0 }, { q: a, p: -b || 0 }]
+      steps.push(commonFactorStep(A, B, C, k))
+    } else {
+      if (k !== 1) steps.push(commonFactorStep(A, B, C, k))
+      factors = factorsFromRoots(a, b, c)
+      steps.push(...trinomialSteps(a, b, c, factors))
+    }
+    steps.push(...zeroProductSteps(k, factors))
     return { steps, roots: new ExactRoot(-B, 1, B * B - 4 * A * C, 2 * A) }
   },
 }
