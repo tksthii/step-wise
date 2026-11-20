@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { evaluateLatex } from './evaluateLatex'
+import { quadraticFormula } from './quadraticFormula'
 import { toStandardForm } from './standardForm'
 import { vieta } from './vieta'
 
@@ -38,6 +40,26 @@ describe('vieta applies', () => {
 
 const solve = (text: string) => vieta.solve(equation(text))
 const lines = (text: string) => solve(text).steps.map((s) => `${s.title}: ${s.math}`)
+
+describe('vieta agrees with the quadratic formula', () => {
+  const cases: string[] = []
+  for (const a of [1, -1, 2, 3, -4])
+    for (let b = -7; b <= 7; b++)
+      for (let c = -8; c <= 8; c++) {
+        const text = `${a}x^2 + ${b}x + ${c}`.replace(/\+ -/g, '- ')
+        if (vieta.applies(equation(text)).ok) cases.push(text)
+      }
+
+  it(`for the ${cases.length} small equations it applies to`, () => {
+    expect(cases.length).toBeGreaterThan(100)
+    for (const text of cases) {
+      const expected = quadraticFormula.solve(equation(text)).roots?.decimals().sort() ?? []
+      const written = solve(text).steps.at(-1)!.math.split(' \\text{ or } ').map((r) => evaluateLatex(r.slice(4)))
+      expect(written.length, text).toBe(expected.length)
+      written.sort().forEach((v, i) => expect(v, text).toBeCloseTo(expected[i], 9))
+    }
+  })
+})
 
 describe('vieta with whole-number roots', () => {
   it('x^2 - 5x + 6: two numbers with sum 5 and product 6', () => {

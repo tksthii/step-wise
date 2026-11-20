@@ -4,6 +4,7 @@ import { factoring } from './factoring'
 import { quadraticFormula } from './quadraticFormula'
 import { reducedDiscriminant } from './reducedDiscriminant'
 import { squareRoot } from './squareRoot'
+import { vieta } from './vieta'
 import { toStandardForm } from './standardForm'
 
 const inputs = [
@@ -13,12 +14,13 @@ const inputs = [
   'x^2 - 16', 'x^2 - 6x + 9', '6x^2 + x - 2', '-2x^2 + 2x + 12', 'x^2/2 + 5x/2 + 3', '2x^2 + 6x', '3x^2',
   '3(x-2)^2 = 12', '(2x+1)^2 = 5', 'x^2/2 - 8 = 0', '(x+1)^2 = -4', '4x^2 = 9',
   'x^2 + x - 1', '3x^2 + 2x - 1', 'x^2 + 2x + 5', 'x^2 + 6x',
+  '2x^2 - 5x + 3', 'x^2 + 3x + 2', 'x^2 - 5x + 6', '3x^2 - x - 4',
 ]
 
 function explanations(text: string): string[] {
   const form = toStandardForm(text)
   if (form.kind !== 'quadratic') return form.steps.map((s) => s.explanation)
-  const methods = [quadraticFormula, factoring, squareRoot, completingSquare, reducedDiscriminant].filter(
+  const methods = [quadraticFormula, factoring, squareRoot, completingSquare, reducedDiscriminant, vieta].filter(
     (m) => m.applies(form).ok,
   )
   return [...form.steps, ...methods.flatMap((m) => m.solve(form).steps)].map((s) => s.explanation)
