@@ -83,6 +83,35 @@ function identityStep(number: IdentityNumber, why: string, f: Factor, expression
   }
 }
 
+const xTerm = (n: number) => `${n === 1 ? '' : n === -1 ? '-' : n}x`
+const signedX = (n: number) => `${n < 0 ? '-' : '+'} ${xTerm(Math.abs(n))}`
+
+// (q1x - p1)(q2x - p2) splits bx into mx + nx with m = -q1p2, n = -q2p1, so the groups are
+// q1x(q2x - p2) and -p1(q2x - p2)
+function decompositionSteps(a: number, b: number, c: number, [f1, f2]: [Factor, Factor]): Step[] {
+  const m = -f1.q * f2.p
+  const n = -f2.q * f1.p
+  const split = `${xTerm(a)}^2 ${signedX(m)} ${signedX(n)} ${signed(c)}`
+  const common = bracketed(f2)
+  const grouped = `${xTerm(f1.q)}${common} ${signed(-f1.p)}${common}`
+  return [
+    {
+      title: 'Decompose the middle term',
+      explanation:
+        `Find two numbers that multiply to $ac = (${a})(${c}) = ${a * c}$ and add to $b = ${b}$: $${m}$ and $${n}$. ` +
+        `Split $${xTerm(b)}$ into $${xTerm(m)} ${signedX(n)}$.`,
+      math: `${trinomial(a, b, c)} = ${split}`,
+    },
+    {
+      title: 'Group and factor',
+      explanation:
+        "Group the first two terms and the last two terms, and take out each group's common factor. " +
+        `Both groups share $${common}$, so factor it out.`,
+      math: `${split} = ${grouped} = ${product([f1, f2])}`,
+    },
+  ]
+}
+
 function trinomialSteps(a: number, b: number, c: number, factors: [Factor, Factor]): Step[] {
   const expression = trinomial(a, b, c)
   // equal roots: (qx - p)^2; roots ±p/q: (qx - p)(qx + p)
@@ -95,6 +124,7 @@ function trinomialSteps(a: number, b: number, c: number, factors: [Factor, Facto
     const why = 'Both terms are perfect squares with a minus between them'
     return [identityStep(3, why, factors[0], expression, product(factors))]
   }
+  if (a !== 1) return decompositionSteps(a, b, c, factors)
   const [m, n] = factors.map((f) => -f.p)
   return [
     {

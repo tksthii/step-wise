@@ -89,6 +89,28 @@ describe('factoring a simple trinomial', () => {
   })
 })
 
+describe('factoring by decomposition', () => {
+  it('6x^2 + x - 2 = 0: split the middle term, then group', () => {
+    const { steps } = solve('6x^2 + x - 2 = 0')
+    expect(lines('6x^2 + x - 2 = 0')).toEqual([
+      'Decompose the middle term: 6x^2 + x - 2 = 6x^2 + 4x - 3x - 2',
+      'Group and factor: 6x^2 + 4x - 3x - 2 = 2x(3x + 2) - 1(3x + 2) = (2x - 1)(3x + 2)',
+      'Use the zero product property: (2x - 1)(3x + 2) = 0 \\Rightarrow 2x - 1 = 0 \\text{ or } 3x + 2 = 0',
+      'Write the roots: x = \\frac{1}{2} \\text{ or } x = -\\frac{2}{3}',
+    ])
+    expect(steps[0].explanation).toBe(
+      'Find two numbers that multiply to $ac = (6)(-2) = -12$ and add to $b = 1$: $4$ and $-3$. Split $x$ into $4x - 3x$.',
+    )
+    expect(steps[1].explanation).toBe(
+      "Group the first two terms and the last two terms, and take out each group's common factor. Both groups share $(3x + 2)$, so factor it out.",
+    )
+  })
+
+  it('2x^2 - 5x - 3 = 0 -> (2x + 1)(x - 3)', () => {
+    expect(solve('2x^2 - 5x - 3 = 0').steps[1].math.split(' = ').at(-1)).toMatch(/^\(2x \+ 1\)\(x - 3\)$|^\(x - 3\)\(2x \+ 1\)$/)
+  })
+})
+
 describe('factoring with identities', () => {
   it('x^2 - 16: difference of squares, identity 3', () => {
     const { steps } = solve('x^2 - 16')
