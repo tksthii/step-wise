@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { quadraticFormula } from './quadraticFormula'
 import { squareRoot } from './squareRoot'
 import { toStandardForm } from './standardForm'
 
@@ -107,6 +108,36 @@ describe('squareRoot with a negative square', () => {
 
   it('-(x-1)^2 = 4: dividing by -1 leaves a negative square', () => {
     expect(solve('-(x-1)^2 = 4').steps.at(-1)?.math).toBe('(x - 1)^2 = -4')
+  })
+})
+
+describe('squareRoot cases agree with the quadratic formula', () => {
+  // "-1 + \frac{1}{2}\sqrt{5}" -> -1 + (1/2)*Math.sqrt(5)
+  const evaluate = (latex: string): number => {
+    const js = latex
+      .replace(/\\frac\{(\d+)\}\{(\d+)\}/g, '($1/$2)')
+      .replace(/\\sqrt\{(\d+)\}/g, '*Math.sqrt($1)')
+      .replace(/(^|[-+]\s*)\*/g, '$1')
+    return Function(`return ${js}`)() as number
+  }
+
+  const cases: string[] = []
+  for (const k of ['', '-', '2', '3'])
+    for (const m of ['', '2', '3'])
+      for (const r of [-3, -1, 1, 2])
+        for (const q of [-4, 0, 1, 5, 8, 9, 12]) cases.push(`${k}(${m}x ${r < 0 ? '-' : '+'} ${Math.abs(r)})^2 = ${q}`)
+
+  it(`gives the same x values for ${cases.length} equations`, () => {
+    for (const text of cases) {
+      const eq = equation(text)
+      const expected = quadraticFormula.solve(eq).roots?.decimals().sort() ?? []
+      const casesStep = solve(text).steps.find((s) => s.title === 'Solve each case')
+      const shown = [...(casesStep?.math.matchAll(/x = ([^\\]*(?:\\(?:frac|sqrt)\{\d+\}(?:\{\d+\})?[^\\]*)*?)(?= \\text| *$)/g) ?? [])]
+        .map(([, v]) => evaluate(v))
+        .sort()
+      expect(shown.length, text).toBe(expected.length)
+      shown.forEach((v, i) => expect(v, text).toBeCloseTo(expected[i], 9))
+    }
   })
 })
 
