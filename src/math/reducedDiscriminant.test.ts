@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { quadraticFormula } from './quadraticFormula'
 import { reducedDiscriminant } from './reducedDiscriminant'
 import { toStandardForm } from './standardForm'
 
@@ -35,6 +36,23 @@ describe('reducedDiscriminant applies', () => {
 
 const solve = (text: string) => reducedDiscriminant.solve(equation(text))
 const lines = (text: string) => solve(text).steps.map((s) => `${s.title}: ${s.math}`)
+
+describe('reducedDiscriminant agrees with the quadratic formula', () => {
+  const cases: string[] = []
+  for (const a of [1, 2, -1, 3, -5])
+    for (const b of [-6, -4, -2, 0, 2, 4, 8])
+      for (const c of [-7, -3, 0, 1, 5]) cases.push(`${a}x^2 + ${b}x + ${c}`.replace(/\+ -/g, '- '))
+
+  it(`for ${cases.length} equations with even b`, () => {
+    for (const text of cases) {
+      const eq = equation(text)
+      const expected = quadraticFormula.solve(eq).roots?.decimals().sort()
+      const shown = reducedDiscriminant.solve(eq).roots?.decimals().sort()
+      expect(shown?.length, text).toBe(expected?.length)
+      shown?.forEach((v, i) => expect(v, text).toBeCloseTo(expected![i], 9))
+    }
+  })
+})
 
 describe("reducedDiscriminant: b' and Δ'", () => {
   it("x^2 - 2x - 4: b' = -1, Δ' = 5, two roots", () => {
@@ -96,6 +114,18 @@ describe("reducedDiscriminant: b' and Δ'", () => {
       "Apply the formula: x = \\frac{-b' \\pm \\sqrt{\\Delta'}}{a} = \\frac{0 \\pm \\sqrt{12}}{1}",
       'Simplify: x = 0 \\pm \\sqrt{12} = 0 \\pm 2\\sqrt{3}',
     ])
+  })
+
+  it('x^2/2 - x/3 = 1: clear the fractions first', () => {
+    const { steps, roots } = solve('x^2/2 - x/3 = 1')
+    expect(steps[0]).toEqual({
+      title: 'Clear the fractions',
+      explanation:
+        'Multiply every term by $6$ so $a$, $b$ and $c$ are whole numbers. This does not change the roots.',
+      math: '3x^2 - 2x - 6 = 0',
+    })
+    expect(steps[1].math).toBe("a = 3, \\quad b = -2, \\quad c = -6, \\quad b' = \\frac{b}{2} = -1")
+    expect(roots?.toLatex()).toBe('x = \\frac{1 \\pm \\sqrt{19}}{3}')
   })
 
   it("x^2 + 2x + 5: Δ' < 0, no real roots, stop", () => {

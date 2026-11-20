@@ -1,7 +1,7 @@
 import { ExactRoot } from './exactRoot'
 import { Polynomial } from './polynomial'
 import { twoPlaces, wholeCoefficients } from './quadraticFormula'
-import type { Rational } from './rational'
+import { Rational } from './rational'
 import type { SolvingMethod } from './solvingMethod'
 import { simplifySqrt } from './sqrt'
 import type { Step } from './step'
@@ -97,10 +97,18 @@ export const reducedDiscriminant: SolvingMethod = {
   solve(eq) {
     const applicable = reducedDiscriminant.applies(eq)
     if (!applicable.ok) throw new Error(applicable.reason)
-    const { A, B, C } = wholeCoefficients(eq)
+    const { lcm, A, B, C } = wholeCoefficients(eq)
     const bp = B / 2
     const D = bp * bp - A * C
-    const steps = discriminantSteps(A, B, C, bp, D)
+    const steps: Step[] = []
+    if (lcm !== 1) {
+      steps.push({
+        title: 'Clear the fractions',
+        explanation: `Multiply every term by $${lcm}$ so $a$, $b$ and $c$ are whole numbers. This does not change the roots.`,
+        math: `${new Polynomial([C, B, A].map((n) => new Rational(n))).toLatex()} = 0`,
+      })
+    }
+    steps.push(...discriminantSteps(A, B, C, bp, D))
     if (D < 0) return { steps, roots: null }
     const roots = new ExactRoot(-bp, 1, D, A)
     return { steps: [...steps, ...formulaSteps(A, bp, D, roots)], roots }

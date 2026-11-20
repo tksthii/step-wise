@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { completingSquare } from './completingSquare'
 import { factoring } from './factoring'
 import { quadraticFormula } from './quadraticFormula'
+import { reducedDiscriminant } from './reducedDiscriminant'
 import { squareRoot } from './squareRoot'
 import { toStandardForm } from './standardForm'
 
@@ -17,7 +18,9 @@ const inputs = [
 function explanations(text: string): string[] {
   const form = toStandardForm(text)
   if (form.kind !== 'quadratic') return form.steps.map((s) => s.explanation)
-  const methods = [quadraticFormula, factoring, squareRoot, completingSquare].filter((m) => m.applies(form).ok)
+  const methods = [quadraticFormula, factoring, squareRoot, completingSquare, reducedDiscriminant].filter(
+    (m) => m.applies(form).ok,
+  )
   return [...form.steps, ...methods.flatMap((m) => m.solve(form).steps)].map((s) => s.explanation)
 }
 
