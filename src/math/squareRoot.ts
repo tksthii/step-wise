@@ -145,6 +145,14 @@ export const squareRoot: SolvingMethod = {
     } else if (!form && (eq.c.num !== 0 || !eq.a.equals(ONE))) {
       steps.push(isolateFromStandardForm(eq.a, eq.c, s))
     }
+    if (s.num < 0) {
+      steps.push({
+        title: 'No real roots',
+        explanation: "A square can't be negative, so there are no real roots.",
+        math: `${square} = ${fraction(s)}`,
+      })
+      return { steps, roots: null }
+    }
 
     const { R, rad } = squareRootOf(s)
     let math = `${lhs} = \\pm \\sqrt{${fraction(s)}}`

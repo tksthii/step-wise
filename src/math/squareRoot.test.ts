@@ -85,6 +85,31 @@ describe('squareRoot on a(x + p)^2 = q as typed', () => {
   })
 })
 
+describe('squareRoot with a negative square', () => {
+  it('(x+1)^2 = -4: no real roots', () => {
+    const { steps, roots } = solve('(x+1)^2 = -4')
+    expect(roots).toBeNull()
+    expect(steps).toEqual([
+      {
+        title: 'No real roots',
+        explanation: "A square can't be negative, so there are no real roots.",
+        math: '(x + 1)^2 = -4',
+      },
+    ])
+  })
+
+  it('x^2 + 4 = 0: isolate first, then no real roots', () => {
+    expect(lines('x^2 + 4 = 0')).toEqual([
+      'Isolate the square: x^2 + 4 = 0 \\Rightarrow x^2 = -4',
+      'No real roots: x^2 = -4',
+    ])
+  })
+
+  it('-(x-1)^2 = 4: dividing by -1 leaves a negative square', () => {
+    expect(solve('-(x-1)^2 = 4').steps.at(-1)?.math).toBe('(x - 1)^2 = -4')
+  })
+})
+
 describe('squareRoot when b = 0', () => {
   it('x^2 - 16 = 0', () => {
     const { steps, roots } = solve('x^2 - 16 = 0')
