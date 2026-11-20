@@ -56,6 +56,27 @@ describe('vieta when a + b + c = 0', () => {
     expect(roots?.rationalRoots()?.map(String).sort()).toEqual(['1', '3/2'])
   })
 
+  it('x^2 + 3x + 2: a - b + c = 0, roots -1 and -c/a', () => {
+    const { steps } = solve('x^2 + 3x + 2')
+    expect(lines('x^2 + 3x + 2')).toEqual([
+      'Check a - b + c: a - b + c = 1 - 3 + 2 = 0',
+      'Find the other root: x_1 = -1, \\quad x_2 = -\\frac{c}{a} = -2',
+      'Check with the sum and product: x_1 + x_2 = -1 + (-2) = -3, \\quad x_1 x_2 = (-1) \\cdot (-2) = 2',
+      'Write the roots: x = -1 \\text{ or } x = -2',
+    ])
+    expect(steps[0].explanation).toBe(
+      'This is 0, so $x = -1$ is a root: substituting $x = -1$ gives $a - b + c = 0$.',
+    )
+    expect(steps[1].explanation).toBe(
+      'The two roots multiply to $\\frac{c}{a}$. One root is $-1$, so the other is $-\\frac{c}{a} = -2$.',
+    )
+  })
+
+  it('3x^2 - x - 4: a - b + c with a negative b', () => {
+    expect(solve('3x^2 - x - 4').steps[0].math).toBe('a - b + c = 3 - (-1) + (-4) = 0')
+    expect(solve('3x^2 - x - 4').steps[1].math).toBe('x_1 = -1, \\quad x_2 = -\\frac{c}{a} = \\frac{4}{3}')
+  })
+
   it('x^2 - 2x + 1: both roots are 1', () => {
     const { steps } = solve('x^2 - 2x + 1')
     expect(steps.at(-1)).toEqual({

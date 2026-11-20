@@ -8,7 +8,6 @@ import type { Step } from './step'
 type Pattern = 'sum-zero' | 'alternating-zero' | 'integer-roots'
 
 const ZERO = new Rational(0)
-const ONE = new Rational(1)
 const fraction = (r: Rational) => new Polynomial([r]).toLatex()
 // negatives after the first term get brackets: 2 + (-5) + 3
 const bracketed = (r: Rational) => (r.num < 0 ? `(${fraction(r)})` : fraction(r))
@@ -49,6 +48,34 @@ function rootsStep(x1: Rational, x2: Rational): Step {
   }
 }
 
+// x = 1 is a root when a + b + c = 0, x = -1 when a - b + c = 0; the other root then comes from the product c/a
+function knownRootSteps(eq: QuadraticEquation, root: 1 | -1): Step[] {
+  const { a, b, c } = eq
+  const x1 = new Rational(root)
+  const x2 = c.divide(a).multiply(x1)
+  const [check, other] = root === 1 ? ['a + b + c', '\\frac{c}{a}'] : ['a - b + c', '-\\frac{c}{a}']
+  const substituted =
+    root === 1
+      ? `${fraction(a)} + ${bracketed(b)} + ${bracketed(c)}`
+      : `${fraction(a)} - ${bracketed(b)} + ${bracketed(c)}`
+  return [
+    {
+      title: `Check ${check}`,
+      explanation:
+        (root === 1 ? 'The coefficients add to 0' : 'This is 0') +
+        `, so $x = ${root}$ is a root: substituting $x = ${root}$ gives $${check} = 0$.`,
+      math: `${check} = ${substituted} = 0`,
+    },
+    {
+      title: 'Find the other root',
+      explanation: `The two roots multiply to $\\frac{c}{a}$. One root is $${root}$, so the other is $${other} = ${fraction(x2)}$.`,
+      math: `x_1 = ${root}, \\quad x_2 = ${other} = ${fraction(x2)}`,
+    },
+    checkStep(x1, x2, eq),
+    rootsStep(x1, x2),
+  ]
+}
+
 export const vieta: SolvingMethod = {
   id: 'vieta',
   name: "Vieta's shortcut",
@@ -64,23 +91,7 @@ export const vieta: SolvingMethod = {
   solve(eq) {
     const applicable = vieta.applies(eq)
     if (!applicable.ok) throw new Error(applicable.reason)
-    const { a, b, c } = eq
-    const x1 = ONE
-    const x2 = c.divide(a)
-    const steps: Step[] = [
-      {
-        title: 'Check a + b + c',
-        explanation: 'The coefficients add to 0, so $x = 1$ is a root: substituting $x = 1$ gives $a + b + c = 0$.',
-        math: `a + b + c = ${fraction(a)} + ${bracketed(b)} + ${bracketed(c)} = 0`,
-      },
-      {
-        title: 'Find the other root',
-        explanation: `The two roots multiply to $\\frac{c}{a}$. One root is $1$, so the other is $\\frac{c}{a} = ${fraction(x2)}$.`,
-        math: `x_1 = 1, \\quad x_2 = \\frac{c}{a} = ${fraction(x2)}`,
-      },
-      checkStep(x1, x2, eq),
-      rootsStep(x1, x2),
-    ]
+    const steps = knownRootSteps(eq, pattern(eq) === 'sum-zero' ? 1 : -1)
     return { steps, roots: exactRoots(eq) }
   },
 }
