@@ -112,12 +112,12 @@ describe('squareRoot with a negative square', () => {
 })
 
 describe('squareRoot cases agree with the quadratic formula', () => {
-  // "-1 + \frac{1}{2}\sqrt{5}" -> -1 + (1/2)*Math.sqrt(5)
+  // "-\frac{1}{2} + \frac{3\sqrt{5}}{2}" -> -((1)/(2)) + ((3*Math.sqrt(5))/(2))
   const evaluate = (latex: string): number => {
     const js = latex
-      .replace(/\\frac\{(\d+)\}\{(\d+)\}/g, '($1/$2)')
-      .replace(/\\sqrt\{(\d+)\}/g, '*Math.sqrt($1)')
-      .replace(/(^|[-+]\s*)\*/g, '$1')
+      .replace(/(\d)\\sqrt/g, '$1*\\sqrt')
+      .replace(/\\sqrt\{(\d+)\}/g, 'Math.sqrt($1)')
+      .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '(($1)/($2))')
     return Function(`return ${js}`)() as number
   }
 
@@ -132,8 +132,8 @@ describe('squareRoot cases agree with the quadratic formula', () => {
       const eq = equation(text)
       const expected = quadraticFormula.solve(eq).roots?.decimals().sort() ?? []
       const casesStep = solve(text).steps.find((s) => s.title === 'Solve each case')
-      const shown = [...(casesStep?.math.matchAll(/x = ([^\\]*(?:\\(?:frac|sqrt)\{\d+\}(?:\{\d+\})?[^\\]*)*?)(?= \\text| *$)/g) ?? [])]
-        .map(([, v]) => evaluate(v))
+      const shown = (casesStep?.math.split(' \\text{ or } ') ?? [])
+        .map((c) => evaluate(c.split('\\Rightarrow x = ')[1]))
         .sort()
       expect(shown.length, text).toBe(expected.length)
       shown.forEach((v, i) => expect(v, text).toBeCloseTo(expected[i], 9))
@@ -171,6 +171,14 @@ describe('squareRoot when b = 0', () => {
 
   it('4x^2 - 9 = 0: a fraction under the root', () => {
     expect(solve('4x^2 - 9 = 0').steps[1].math).toBe('x = \\pm \\sqrt{\\frac{9}{4}} = \\pm \\frac{3}{2}')
+  })
+
+  it('4x^2 - 5 = 0 and 2x^2 - 1 = 0: fractional roots written as a fraction', () => {
+    expect(solve('4x^2 - 5 = 0').steps[1].math).toBe('x = \\pm \\sqrt{\\frac{5}{4}} = \\pm \\frac{\\sqrt{5}}{2}')
+    expect(solve('2x^2 - 1 = 0').steps[1].math).toBe('x = \\pm \\sqrt{\\frac{1}{2}} = \\pm \\frac{\\sqrt{2}}{2}')
+    expect(solve('(2x+1)^2 = 5').steps[1].math).toBe(
+      '2x + 1 = \\sqrt{5} \\Rightarrow x = -\\frac{1}{2} + \\frac{\\sqrt{5}}{2} \\text{ or } 2x + 1 = -\\sqrt{5} \\Rightarrow x = -\\frac{1}{2} - \\frac{\\sqrt{5}}{2}',
+    )
   })
 
   it('x^2 - 5 = 0: nothing to simplify', () => {

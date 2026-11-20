@@ -74,8 +74,12 @@ function squareRootOf(s: Rational): { R: Rational; rad: number } {
   return { R: new Rational(coefficient, s.den), rad: radicand }
 }
 
-const radical = (R: Rational, rad: number) =>
-  rad === 1 ? fraction(R) : `${R.equals(ONE) ? '' : fraction(R)}\\sqrt{${rad}}`
+// R√rad for R >= 0, Ontario style: 2\sqrt{2}, \frac{\sqrt{5}}{2}, \frac{3\sqrt{2}}{4}
+function radical(R: Rational, rad: number): string {
+  if (rad === 1) return fraction(R)
+  const top = `${R.num === 1 ? '' : R.num}\\sqrt{${rad}}`
+  return R.den === 1 ? top : `\\frac{${top}}{${R.den}}`
+}
 
 // mx + r = ±R√rad  ->  x = (±R√rad - r) / m
 function casesStep(inner: Polynomial, R: Rational, rad: number): Step {
