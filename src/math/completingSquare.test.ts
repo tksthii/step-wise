@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { completingSquare } from './completingSquare'
+import { caseValues } from './evaluateLatex'
+import { quadraticFormula } from './quadraticFormula'
 import { toStandardForm } from './standardForm'
 
 function equation(text: string) {
@@ -107,6 +109,23 @@ describe('completingSquare', () => {
       'The left side has the shape $a^2 + 2ab + b^2$ with $a = x$ and $b = 3$, so it equals $(a+b)^2$.',
     )
     expect(steps.at(-1)?.math).toBe('x = 0 \\text{ or } x = -6')
+  })
+
+  describe('agrees with the quadratic formula', () => {
+    const cases: string[] = []
+    for (const a of [1, -1, 2, 3, -4])
+      for (const b of [-5, -3, -1, 1, 2, 4, 6])
+        for (const c of [-6, -2, 0, 1, 3, 7]) cases.push(`${a}x^2 + ${b}x + ${c}`.replace(/\+ -/g, '- '))
+
+    it(`for ${cases.length} equations with b ≠ 0`, () => {
+      for (const text of cases) {
+        const expected = quadraticFormula.solve(equation(text)).roots?.decimals().sort() ?? []
+        const casesStep = solve(text).steps.find((s) => s.title === 'Solve each case')
+        const shown = casesStep ? caseValues(casesStep.math).sort() : []
+        expect(shown.length, text).toBe(expected.length)
+        shown.forEach((v, i) => expect(v, text).toBeCloseTo(expected[i], 9))
+      }
+    })
   })
 
   it('x^2 + x - 1 = 0: exact fractions', () => {

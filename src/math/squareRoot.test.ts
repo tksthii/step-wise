@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { caseValues } from './evaluateLatex'
 import { quadraticFormula } from './quadraticFormula'
 import { squareRoot } from './squareRoot'
 import { toStandardForm } from './standardForm'
@@ -112,15 +113,6 @@ describe('squareRoot with a negative square', () => {
 })
 
 describe('squareRoot cases agree with the quadratic formula', () => {
-  // "-\frac{1}{2} + \frac{3\sqrt{5}}{2}" -> -((1)/(2)) + ((3*Math.sqrt(5))/(2))
-  const evaluate = (latex: string): number => {
-    const js = latex
-      .replace(/(\d)\\sqrt/g, '$1*\\sqrt')
-      .replace(/\\sqrt\{(\d+)\}/g, 'Math.sqrt($1)')
-      .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '(($1)/($2))')
-    return Function(`return ${js}`)() as number
-  }
-
   const cases: string[] = []
   for (const k of ['', '-', '2', '3'])
     for (const m of ['', '2', '3'])
@@ -132,9 +124,7 @@ describe('squareRoot cases agree with the quadratic formula', () => {
       const eq = equation(text)
       const expected = quadraticFormula.solve(eq).roots?.decimals().sort() ?? []
       const casesStep = solve(text).steps.find((s) => s.title === 'Solve each case')
-      const shown = (casesStep?.math.split(' \\text{ or } ') ?? [])
-        .map((c) => evaluate(c.split('\\Rightarrow x = ')[1]))
-        .sort()
+      const shown = casesStep ? caseValues(casesStep.math).sort() : []
       expect(shown.length, text).toBe(expected.length)
       shown.forEach((v, i) => expect(v, text).toBeCloseTo(expected[i], 9))
     }
