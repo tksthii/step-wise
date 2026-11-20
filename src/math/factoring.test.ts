@@ -158,6 +158,30 @@ describe('factoring with identities', () => {
   })
 })
 
+describe('factoring with fractions', () => {
+  it('x^2/2 + 5x/2 + 3 = 0: multiply both sides by the LCD first', () => {
+    const { steps, roots } = solve('x^2/2 + 5x/2 + 3 = 0')
+    expect(steps[0]).toEqual({
+      title: 'Clear the fractions',
+      explanation: 'Multiply both sides by the LCD, $2$, so every coefficient is a whole number. This does not change the roots.',
+      math: '2\\left(\\frac{1}{2}x^2 + \\frac{5}{2}x + 3\\right) = 2(0) \\Rightarrow x^2 + 5x + 6 = 0',
+    })
+    expect(steps[1].title).toBe('Factor the simple trinomial')
+    expect(roots?.rationalRoots()?.map(String)).toEqual(['-2', '-3'])
+  })
+
+  it('x^2/4 - 1 = 0 -> x^2 - 4, then difference of squares', () => {
+    expect(solve('x^2/4 - 1 = 0').steps.map((s) => s.title).slice(0, 2)).toEqual([
+      'Clear the fractions',
+      'Use identity 3: Difference of squares',
+    ])
+  })
+
+  it('no fraction step for whole-number coefficients', () => {
+    expect(solve('x^2 + 5x + 6').steps[0].title).not.toBe('Clear the fractions')
+  })
+})
+
 describe('factoring when c = 0: x is a common factor', () => {
   it('x^2 - 3x = 0 -> x(x - 3) = 0', () => {
     const { steps } = solve('x^2 - 3x = 0')

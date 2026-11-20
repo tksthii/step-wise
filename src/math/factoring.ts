@@ -152,8 +152,16 @@ export const factoring: SolvingMethod = {
   solve(eq) {
     const applicable = factoring.applies(eq)
     if (!applicable.ok) throw new Error(applicable.reason)
-    const { A, B, C } = wholeCoefficients(eq)
+    const { lcm, A, B, C } = wholeCoefficients(eq)
     const steps: Step[] = []
+    if (lcm !== 1) {
+      const original = new Polynomial([eq.c, eq.b, eq.a]).toLatex()
+      steps.push({
+        title: 'Clear the fractions',
+        explanation: `Multiply both sides by the LCD, $${lcm}$, so every coefficient is a whole number. This does not change the roots.`,
+        math: `${lcm}\\left(${original}\\right) = ${lcm}(0) \\Rightarrow ${trinomial(A, B, C)} = 0`,
+      })
+    }
     // common factor first, negative when a < 0 so the x^2 term inside is positive
     const g = C === 0 ? gcd(A, B) : gcd(gcd(A, B), C)
     const k = A < 0 ? -g : g
