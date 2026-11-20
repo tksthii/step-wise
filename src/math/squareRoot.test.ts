@@ -31,6 +31,60 @@ describe('squareRoot applies', () => {
 const solve = (text: string) => squareRoot.solve(equation(text))
 const lines = (text: string) => solve(text).steps.map((s) => `${s.title}: ${s.math}`)
 
+describe('squareRoot on a(x + p)^2 = q as typed', () => {
+  it('(x+1)^2 = 9: no isolating needed, then each case', () => {
+    expect(lines('(x+1)^2 = 9')).toEqual([
+      'Take the square root of both sides: x + 1 = \\pm \\sqrt{9} = \\pm 3',
+      'Solve each case: x + 1 = 3 \\Rightarrow x = 2 \\text{ or } x + 1 = -3 \\Rightarrow x = -4',
+      'Write the roots: x = 2 \\text{ or } x = -4',
+    ])
+    expect(solve('(x+1)^2 = 9').steps[1].explanation).toBe('Solve $x + 1 = 3$ and $x + 1 = -3$ separately.')
+  })
+
+  it('3(x-2)^2 = 12: divide first', () => {
+    const { steps } = solve('3(x-2)^2 = 12')
+    expect(lines('3(x-2)^2 = 12')).toEqual([
+      'Isolate the square: 3(x - 2)^2 = 12 \\Rightarrow (x - 2)^2 = 4',
+      'Take the square root of both sides: x - 2 = \\pm \\sqrt{4} = \\pm 2',
+      'Solve each case: x - 2 = 2 \\Rightarrow x = 4 \\text{ or } x - 2 = -2 \\Rightarrow x = 0',
+      'Write the roots: x = 4 \\text{ or } x = 0',
+    ])
+    expect(steps[0].explanation).toBe('Divide both sides by $3$.')
+  })
+
+  it('2x^2 = 18: divide, then x = ±3 needs no cases', () => {
+    expect(lines('2x^2 = 18')).toEqual([
+      'Isolate the square: 2x^2 = 18 \\Rightarrow x^2 = 9',
+      'Take the square root of both sides: x = \\pm \\sqrt{9} = \\pm 3',
+      'Write the roots: x = 3 \\text{ or } x = -3',
+    ])
+  })
+
+  it('(x+1)^2 = 5: irrational cases', () => {
+    expect(solve('(x+1)^2 = 5').steps[1].math).toBe(
+      'x + 1 = \\sqrt{5} \\Rightarrow x = -1 + \\sqrt{5} \\text{ or } x + 1 = -\\sqrt{5} \\Rightarrow x = -1 - \\sqrt{5}',
+    )
+  })
+
+  it('(2x+1)^2 = 9: divide by the x coefficient in each case', () => {
+    expect(solve('(2x+1)^2 = 9').steps[1].math).toBe(
+      '2x + 1 = 3 \\Rightarrow x = 1 \\text{ or } 2x + 1 = -3 \\Rightarrow x = -2',
+    )
+  })
+
+  it('(x-3)^2 = 0: one case', () => {
+    expect(lines('(x-3)^2 = 0')).toEqual([
+      'Take the square root of both sides: x - 3 = 0',
+      'Solve each case: x - 3 = 0 \\Rightarrow x = 3',
+      'Write the roots: x = 3',
+    ])
+  })
+
+  it('9 = (x+1)^2: the square is written on the left', () => {
+    expect(solve('9 = (x+1)^2').steps[0].math).toBe('x + 1 = \\pm \\sqrt{9} = \\pm 3')
+  })
+})
+
 describe('squareRoot when b = 0', () => {
   it('x^2 - 16 = 0', () => {
     const { steps, roots } = solve('x^2 - 16 = 0')

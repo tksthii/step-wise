@@ -1,4 +1,5 @@
 import { ExactRoot } from './exactRoot'
+import { exprToLatex } from './format'
 import type { Expr } from './parse'
 import { Polynomial } from './polynomial'
 import { twoPlaces, wholeCoefficients } from './quadraticFormula'
@@ -76,6 +77,32 @@ function squareRootOf(s: Rational): { R: Rational; rad: number } {
 const radical = (R: Rational, rad: number) =>
   rad === 1 ? fraction(R) : `${R.equals(ONE) ? '' : fraction(R)}\\sqrt{${rad}}`
 
+// mx + r = ±R√rad  ->  x = (±R√rad - r) / m
+function casesStep(inner: Polynomial, R: Rational, rad: number): Step {
+  const lhs = inner.toLatex()
+  const m = inner.coefficient(1)
+  const p = ZERO.subtract(inner.coefficient(0)).divide(m)
+  const t = R.divide(m)
+  const solved = (sign: 1 | -1) => {
+    if (rad === 1) return fraction(p.add(t.multiply(new Rational(sign))))
+    const coef = t.multiply(new Rational(sign))
+    const abs = new Rational(Math.abs(coef.num), coef.den)
+    const term = radical(abs, rad)
+    if (p.num === 0) return `${coef.num < 0 ? '-' : ''}${term}`
+    return `${fraction(p)} ${coef.num < 0 ? '-' : '+'} ${term}`
+  }
+  const value = radical(R, rad)
+  const cases = R.num === 0 ? [{ v: '0', sign: 1 as const }] : [{ v: value, sign: 1 as const }, { v: `-${value}`, sign: -1 as const }]
+  return {
+    title: 'Solve each case',
+    explanation:
+      cases.length === 1
+        ? `Solve $${lhs} = 0$.`
+        : `Solve $${lhs} = ${cases[0].v}$ and $${lhs} = ${cases[1].v}$ separately.`,
+    math: cases.map(({ v, sign }) => `${lhs} = ${v} \\Rightarrow x = ${solved(sign)}`).join(' \\text{ or } '),
+  }
+}
+
 function rootsStep(eq: QuadraticEquation, s: Rational, rad: number): { step: Step; roots: ExactRoot } {
   const { A, B, C } = wholeCoefficients(eq)
   const roots = new ExactRoot(-B, 1, B * B - 4 * A * C, 2 * A)
@@ -101,11 +128,24 @@ export const squareRoot: SolvingMethod = {
     const applicable = squareRoot.applies(eq)
     if (!applicable.ok) throw new Error(applicable.reason)
     const steps: Step[] = []
-    const inner = X
-    const s = ZERO.subtract(eq.c).divide(eq.a)
-    if (eq.c.num !== 0 || !eq.a.equals(ONE)) steps.push(isolateFromStandardForm(eq.a, eq.c, s))
-
+    // prefer the square exactly as the student typed it; otherwise b = 0 gives x^2 = -c/a
+    const form = squareForm(eq)
+    const inner = form ? form.inner : X
+    const s = form ? form.q.divide(form.k) : ZERO.subtract(eq.c).divide(eq.a)
     const lhs = inner.toLatex()
+    const square = inner.degree() === 1 && inner.coefficient(0).num === 0 && inner.coefficient(1).equals(ONE)
+      ? 'x^2'
+      : `(${lhs})^2`
+    if (form && !form.k.equals(ONE)) {
+      steps.push({
+        title: 'Isolate the square',
+        explanation: `Divide both sides by $${fraction(form.k)}$.`,
+        math: `${exprToLatex(form.side)} = ${fraction(form.q)} \\Rightarrow ${square} = ${fraction(s)}`,
+      })
+    } else if (!form && (eq.c.num !== 0 || !eq.a.equals(ONE))) {
+      steps.push(isolateFromStandardForm(eq.a, eq.c, s))
+    }
+
     const { R, rad } = squareRootOf(s)
     let math = `${lhs} = \\pm \\sqrt{${fraction(s)}}`
     const simplified = radical(R, rad)
@@ -117,6 +157,8 @@ export const squareRoot: SolvingMethod = {
         'A positive number and its opposite have the same square, so take both the positive and the negative square root.',
       math,
     })
+
+    if (square !== 'x^2') steps.push(casesStep(inner, R, rad))
 
     const { step, roots } = rootsStep(eq, s, rad)
     steps.push(step)
