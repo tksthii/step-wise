@@ -41,3 +41,23 @@ describe('factoring applies', () => {
     expect([factoring.id, factoring.name]).toEqual(['factoring', 'Factoring'])
   })
 })
+
+const solve = (text: string) => factoring.solve(equation(text))
+const lines = (text: string) => solve(text).steps.map((s) => `${s.title}: ${s.math}`)
+
+describe('factoring a simple trinomial', () => {
+  it('x^2 + 5x + 6 = 0 -> (x + 2)(x + 3) = 0', () => {
+    expect(lines('x^2 + 5x + 6 = 0')).toEqual([
+      'Factor the simple trinomial: x^2 + 5x + 6 = (x + 2)(x + 3)',
+      'Use the zero product property: (x + 2)(x + 3) = 0 \\Rightarrow x + 2 = 0 \\text{ or } x + 3 = 0',
+      'Write the roots: x = -2 \\text{ or } x = -3',
+    ])
+    expect(solve('x^2 + 5x + 6 = 0').steps[0].explanation).toBe(
+      'Find two numbers that multiply to $c = 6$ and add to $b = 5$: $2$ and $3$.',
+    )
+  })
+
+  it('returns the exact roots', () => {
+    expect(solve('x^2 + 5x + 6 = 0').roots?.rationalRoots()?.map(String)).toEqual(['-2', '-3'])
+  })
+})
