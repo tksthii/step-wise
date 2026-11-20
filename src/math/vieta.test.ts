@@ -24,9 +24,44 @@ describe('vieta applies', () => {
   })
 
   it.each(['x^2 - 2x - 4', '2x^2 + x - 6', 'x^2 + 1'])('%s does not apply', (text) => {
+    expect(vieta.applies(equation(text)).ok).toBe(false)
+  })
+
+  it('x^2 - 2x - 4 gives the reason', () => {
+    const text = 'x^2 - 2x - 4'
     expect(vieta.applies(equation(text))).toEqual({
       ok: false,
       reason: "No quick pattern: $a + b + c \\neq 0$, $a - b + c \\neq 0$, and the roots aren't whole numbers.",
+    })
+  })
+})
+
+const solve = (text: string) => vieta.solve(equation(text))
+const lines = (text: string) => solve(text).steps.map((s) => `${s.title}: ${s.math}`)
+
+describe('vieta when a + b + c = 0', () => {
+  it('2x^2 - 5x + 3: roots 1 and c/a', () => {
+    const { steps, roots } = solve('2x^2 - 5x + 3')
+    expect(lines('2x^2 - 5x + 3')).toEqual([
+      'Check a + b + c: a + b + c = 2 + (-5) + 3 = 0',
+      'Find the other root: x_1 = 1, \\quad x_2 = \\frac{c}{a} = \\frac{3}{2}',
+      'Check with the sum and product: x_1 + x_2 = 1 + \\frac{3}{2} = \\frac{5}{2}, \\quad x_1 x_2 = 1 \\cdot \\frac{3}{2} = \\frac{3}{2}',
+      'Write the roots: x = 1 \\text{ or } x = \\frac{3}{2}',
+    ])
+    expect(steps.map((s) => s.explanation).slice(0, 3)).toEqual([
+      'The coefficients add to 0, so $x = 1$ is a root: substituting $x = 1$ gives $a + b + c = 0$.',
+      'The two roots multiply to $\\frac{c}{a}$. One root is $1$, so the other is $\\frac{c}{a} = \\frac{3}{2}$.',
+      "Vieta's formulas say the roots add to $-\\frac{b}{a} = \\frac{5}{2}$ and multiply to $\\frac{c}{a} = \\frac{3}{2}$. Both match.",
+    ])
+    expect(roots?.rationalRoots()?.map(String).sort()).toEqual(['1', '3/2'])
+  })
+
+  it('x^2 - 2x + 1: both roots are 1', () => {
+    const { steps } = solve('x^2 - 2x + 1')
+    expect(steps.at(-1)).toEqual({
+      title: 'Write the roots',
+      explanation: 'Both roots are the same, so there is only one root.',
+      math: 'x = 1',
     })
   })
 })
