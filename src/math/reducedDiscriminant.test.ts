@@ -59,6 +59,45 @@ describe("reducedDiscriminant: b' and Δ'", () => {
     ])
   })
 
+  it("x^2 - 2x - 4: the formula gives 1 ± √5 directly", () => {
+    const { steps, roots } = solve('x^2 - 2x - 4')
+    expect(lines('x^2 - 2x - 4').slice(3)).toEqual([
+      "Apply the formula: x = \\frac{-b' \\pm \\sqrt{\\Delta'}}{a} = \\frac{-(-1) \\pm \\sqrt{5}}{1}",
+      'Write the roots: x = 1 \\pm \\sqrt{5}',
+    ])
+    expect(steps[3].explanation).toBe("Substitute $b'$, $\\Delta'$ and $a$ into $x = \\frac{-b' \\pm \\sqrt{\\Delta'}}{a}$.")
+    expect(steps[4].explanation).toContain('x ≈ 3.24 or x ≈ -1.24')
+    expect(roots?.toLatex()).toBe('x = 1 \\pm \\sqrt{5}')
+  })
+
+  it('2x^2 - 4x - 6: simplify, then rational roots', () => {
+    expect(lines('2x^2 - 4x - 6')).toEqual([
+      "Find b': a = 2, \\quad b = -4, \\quad c = -6, \\quad b' = \\frac{b}{2} = -2",
+      "Find the reduced discriminant: \\Delta' = b'^2 - ac = (-2)^2 - (2)(-6) = 4 + 12 = 16",
+      "Two real roots: \\Delta' = 16 > 0",
+      "Apply the formula: x = \\frac{-b' \\pm \\sqrt{\\Delta'}}{a} = \\frac{-(-2) \\pm \\sqrt{16}}{2}",
+      'Simplify: x = \\frac{2 \\pm \\sqrt{16}}{2} = \\frac{2 \\pm 4}{2}',
+      'Write the roots: x = 3 \\text{ or } x = -1',
+    ])
+  })
+
+  it('x^2 + 6x + 9: one root', () => {
+    const { steps } = solve('x^2 + 6x + 9')
+    expect(lines('x^2 + 6x + 9').slice(3)).toEqual([
+      "Apply the formula: x = \\frac{-b' \\pm \\sqrt{\\Delta'}}{a} = \\frac{-3 \\pm \\sqrt{0}}{1}",
+      'Simplify: x = -3 \\pm \\sqrt{0} = -3',
+      'Write the roots: x = -3',
+    ])
+    expect(steps.at(-1)?.explanation).toBe('There is only one root: $x = -3$.')
+  })
+
+  it('x^2 - 12: b = 0 and the root simplifies', () => {
+    expect(lines('x^2 - 12').slice(3, 5)).toEqual([
+      "Apply the formula: x = \\frac{-b' \\pm \\sqrt{\\Delta'}}{a} = \\frac{0 \\pm \\sqrt{12}}{1}",
+      'Simplify: x = 0 \\pm \\sqrt{12} = 0 \\pm 2\\sqrt{3}',
+    ])
+  })
+
   it("x^2 + 2x + 5: Δ' < 0, no real roots, stop", () => {
     const { steps, roots } = solve('x^2 + 2x + 5')
     expect(roots).toBeNull()
