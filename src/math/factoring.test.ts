@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { factoring } from './factoring'
+import { quadraticFormula } from './quadraticFormula'
 import { toStandardForm } from './standardForm'
 
 function equation(text: string) {
@@ -179,6 +180,31 @@ describe('factoring with fractions', () => {
 
   it('no fraction step for whole-number coefficients', () => {
     expect(solve('x^2 + 5x + 6').steps[0].title).not.toBe('Clear the fractions')
+  })
+})
+
+describe('factoring agrees with the quadratic formula', () => {
+  // every (k)(q1x - p1)(q2x - p2) with small numbers, written out as ax^2 + bx + c
+  const cases: string[] = []
+  for (const k of [1, -1, 2, -3])
+    for (const q1 of [1, 2, 3])
+      for (const q2 of [1, 2, 5])
+        for (const p1 of [-4, -1, 0, 3])
+          for (const p2 of [-3, 0, 2, 5]) {
+            const [a, b, c] = [k * q1 * q2, -k * (q1 * p2 + q2 * p1), k * p1 * p2]
+            cases.push(`${a}x^2 + ${b}x + ${c}`.replace(/\+ -/g, '- '))
+          }
+
+  it(`gives the same roots for ${cases.length} factorable quadratics`, () => {
+    for (const text of cases) {
+      const eq = equation(text)
+      const expected = quadraticFormula.solve(eq).roots?.rationalRoots()?.map(String).sort()
+      const written = solve(text).steps.at(-1)?.math
+      const shown = [...(written?.matchAll(/x = (-?)(?:\\frac\{(\d+)\}\{(\d+)\}|(\d+))/g) ?? [])]
+        .map(([, sign, num, den, whole]) => `${sign}${whole ?? `${num}/${den}`}`)
+        .sort()
+      expect(shown, text).toEqual(expected)
+    }
   })
 })
 
