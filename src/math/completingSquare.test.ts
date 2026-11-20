@@ -51,6 +51,26 @@ describe('completingSquare', () => {
     expect(steps.at(-1)?.math).toBe('x = 1 \\pm \\sqrt{5}')
   })
 
+  it('2x^2 - 4x - 6 = 0: divide by a first', () => {
+    const { steps } = solve('2x^2 - 4x - 6 = 0')
+    expect(lines('2x^2 - 4x - 6 = 0')).toEqual([
+      'Divide by a: 2x^2 - 4x - 6 = 0 \\Rightarrow x^2 - 2x - 3 = 0',
+      'Move the constant to the right side: x^2 - 2x = 3',
+      'Complete the square: x^2 - 2x + 1 = 3 + 1',
+      'Use identity 2: Square of a difference: (x - 1)^2 = 4',
+      'Take the square root of both sides: x - 1 = \\pm \\sqrt{4} = \\pm 2',
+      'Solve each case: x - 1 = 2 \\Rightarrow x = 3 \\text{ or } x - 1 = -2 \\Rightarrow x = -1',
+      'Write the roots: x = 3 \\text{ or } x = -1',
+    ])
+    expect(steps[0].explanation).toBe('Divide every term by $2$ so the $x^2$ term has a coefficient of 1.')
+  })
+
+  it('3x^2 + 2x - 1 = 0: dividing gives fractions', () => {
+    expect(solve('3x^2 + 2x - 1 = 0').steps[0].math).toBe(
+      '3x^2 + 2x - 1 = 0 \\Rightarrow x^2 + \\frac{2}{3}x - \\frac{1}{3} = 0',
+    )
+  })
+
   it('x^2 + x - 1 = 0: exact fractions', () => {
     const { steps } = solve('x^2 + x - 1 = 0')
     expect(lines('x^2 + x - 1 = 0').slice(1, 4)).toEqual([

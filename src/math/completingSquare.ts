@@ -25,6 +25,14 @@ export const completingSquare: SolvingMethod = {
     const c = eq.c.divide(eq.a)
     const right = ZERO.subtract(c)
 
+    if (!eq.a.equals(ONE)) {
+      steps.push({
+        title: 'Divide by a',
+        explanation: `Divide every term by $${fraction(eq.a)}$ so the $x^2$ term has a coefficient of 1.`,
+        math: `${poly(eq.c, eq.b, eq.a)} = 0 \\Rightarrow ${poly(c, b, ONE)} = 0`,
+      })
+    }
+
     if (c.num !== 0) {
       steps.push({
         title: 'Move the constant to the right side',
