@@ -39,6 +39,28 @@ describe('vieta applies', () => {
 const solve = (text: string) => vieta.solve(equation(text))
 const lines = (text: string) => solve(text).steps.map((s) => `${s.title}: ${s.math}`)
 
+describe('vieta with whole-number roots', () => {
+  it('x^2 - 5x + 6: two numbers with sum 5 and product 6', () => {
+    const { steps } = solve('x^2 - 5x + 6')
+    expect(lines('x^2 - 5x + 6')).toEqual([
+      'Find two numbers: x_1 + x_2 = -\\frac{b}{a} = 5, \\quad x_1 x_2 = \\frac{c}{a} = 6',
+      'Check with the sum and product: x_1 + x_2 = 2 + 3 = 5, \\quad x_1 x_2 = 2 \\cdot 3 = 6',
+      'Write the roots: x = 2 \\text{ or } x = 3',
+    ])
+    expect(steps[0].explanation).toBe(
+      'Look for two whole numbers that add to $-\\frac{b}{a} = 5$ and multiply to $\\frac{c}{a} = 6$: $2$ and $3$.',
+    )
+  })
+
+  it('2x^2 - 10x + 12: divides through by a', () => {
+    expect(solve('2x^2 - 10x + 12').steps.at(-1)?.math).toBe('x = 2 \\text{ or } x = 3')
+  })
+
+  it('x^2 - 4x + 4: a repeated root', () => {
+    expect(lines('x^2 - 4x + 4').at(-1)).toBe('Write the roots: x = 2')
+  })
+})
+
 describe('vieta when a + b + c = 0', () => {
   it('2x^2 - 5x + 3: roots 1 and c/a', () => {
     const { steps, roots } = solve('2x^2 - 5x + 3')

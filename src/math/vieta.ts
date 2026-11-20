@@ -76,6 +76,23 @@ function knownRootSteps(eq: QuadraticEquation, root: 1 | -1): Step[] {
   ]
 }
 
+// whole-number roots: name the two numbers with sum -b/a and product c/a, smaller first
+function integerRootSteps(eq: QuadraticEquation, roots: ExactRoot): Step[] {
+  const found = roots.rationalRoots()!
+  const [x1, x2] = found.length === 1 ? [found[0], found[0]] : [...found].sort((p, q) => p.num - q.num)
+  const sum = fraction(ZERO.subtract(eq.b).divide(eq.a))
+  const product = fraction(eq.c.divide(eq.a))
+  return [
+    {
+      title: 'Find two numbers',
+      explanation: `Look for two whole numbers that add to $-\\frac{b}{a} = ${sum}$ and multiply to $\\frac{c}{a} = ${product}$: $${fraction(x1)}$ and $${fraction(x2)}$.`,
+      math: `x_1 + x_2 = -\\frac{b}{a} = ${sum}, \\quad x_1 x_2 = \\frac{c}{a} = ${product}`,
+    },
+    checkStep(x1, x2, eq),
+    rootsStep(x1, x2),
+  ]
+}
+
 export const vieta: SolvingMethod = {
   id: 'vieta',
   name: "Vieta's shortcut",
@@ -91,7 +108,9 @@ export const vieta: SolvingMethod = {
   solve(eq) {
     const applicable = vieta.applies(eq)
     if (!applicable.ok) throw new Error(applicable.reason)
-    const steps = knownRootSteps(eq, pattern(eq) === 'sum-zero' ? 1 : -1)
-    return { steps, roots: exactRoots(eq) }
+    const found = pattern(eq)
+    const roots = exactRoots(eq)
+    if (found === 'integer-roots') return { steps: integerRootSteps(eq, roots!), roots }
+    return { steps: knownRootSteps(eq, found === 'sum-zero' ? 1 : -1), roots }
   },
 }
