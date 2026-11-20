@@ -8,7 +8,7 @@ import type { Step } from './step'
 const latex = (r: Rational) => new Polynomial([r]).toLatex()
 
 // Multiply a, b, c by the lcm of their denominators so the formula works in whole numbers.
-function wholeCoefficients({ a, b, c }: QuadraticEquation) {
+export function wholeCoefficients({ a, b, c }: QuadraticEquation) {
   const lcm = [a.den, b.den, c.den].reduce((l, d) => (l * d) / gcd(l, d), 1)
   return { lcm, A: (a.num * lcm) / a.den, B: (b.num * lcm) / b.den, C: (c.num * lcm) / c.den }
 }
