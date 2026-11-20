@@ -89,6 +89,53 @@ describe('factoring a simple trinomial', () => {
   })
 })
 
+describe('factoring with identities', () => {
+  it('x^2 - 16: difference of squares, identity 3', () => {
+    const { steps } = solve('x^2 - 16')
+    expect(lines('x^2 - 16')).toEqual([
+      'Use identity 3: Difference of squares: x^2 - 16 = (x - 4)(x + 4)',
+      'Use the zero product property: (x - 4)(x + 4) = 0 \\Rightarrow x - 4 = 0 \\text{ or } x + 4 = 0',
+      'Write the roots: x = 4 \\text{ or } x = -4',
+    ])
+    expect(steps[0].identity).toBe(3)
+    expect(steps[0].explanation).toBe(
+      'Both terms are perfect squares with a minus between them, so use $a^2-b^2 = (a-b)(a+b)$ with $a = x$ and $b = 4$.',
+    )
+  })
+
+  it('-x^2 + 4: factor out -1, then difference of squares', () => {
+    expect(lines('-x^2 + 4 = 0')).toEqual([
+      'Take out the common factor: -x^2 + 4 = -(x^2 - 4)',
+      'Use identity 3: Difference of squares: x^2 - 4 = (x - 2)(x + 2)',
+      "Use the zero product property: -(x - 2)(x + 2) = 0 \\Rightarrow x - 2 = 0 \\text{ or } x + 2 = 0",
+      'Write the roots: x = 2 \\text{ or } x = -2',
+    ])
+  })
+
+  it('4x^2 - 9: a = 2x', () => {
+    expect(solve('4x^2 - 9').steps[0].math).toBe('4x^2 - 9 = (2x - 3)(2x + 3)')
+  })
+
+  it('x^2 - 6x + 9: perfect square, identity 2, one root', () => {
+    const { steps } = solve('x^2 - 6x + 9 = 0')
+    expect(lines('x^2 - 6x + 9 = 0')).toEqual([
+      'Use identity 2: Square of a difference: x^2 - 6x + 9 = (x - 3)^2',
+      'Use the zero product property: (x - 3)^2 = 0 \\Rightarrow x - 3 = 0',
+      'Write the roots: x = 3',
+    ])
+    expect(steps[0].identity).toBe(2)
+    expect(steps[0].explanation).toBe(
+      'The first and last terms are perfect squares and the middle term is $-2ab$, so use $(a-b)^2 = a^2 - 2ab + b^2$ with $a = x$ and $b = 3$.',
+    )
+    expect(steps[2].explanation).toBe('Both factors are the same, so there is only one root.')
+  })
+
+  it('x^2 + 2x + 1 and 4x^2 + 12x + 9: perfect squares, identity 1', () => {
+    expect(solve('x^2 + 2x + 1').steps[0]).toMatchObject({ identity: 1, math: 'x^2 + 2x + 1 = (x + 1)^2' })
+    expect(solve('4x^2 + 12x + 9').steps[0].math).toBe('4x^2 + 12x + 9 = (2x + 3)^2')
+  })
+})
+
 describe('factoring when c = 0: x is a common factor', () => {
   it('x^2 - 3x = 0 -> x(x - 3) = 0', () => {
     const { steps } = solve('x^2 - 3x = 0')

@@ -1,4 +1,5 @@
 import { ExactRoot } from './exactRoot'
+import { IDENTITIES, type IdentityNumber } from './identities'
 import { Polynomial } from './polynomial'
 import { wholeCoefficients } from './quadraticFormula'
 import { gcd, Rational } from './rational'
@@ -72,7 +73,28 @@ function zeroProductSteps(k: number, factors: [Factor, Factor]): Step[] {
   ]
 }
 
+function identityStep(number: IdentityNumber, why: string, f: Factor, expression: string, factored: string): Step {
+  const { name, latex } = IDENTITIES[number - 1]
+  return {
+    title: `Use identity ${number}: ${name}`,
+    explanation: `${why}, so use $${latex}$ with $a = ${linear({ q: f.q, p: 0 })}$ and $b = ${Math.abs(f.p)}$.`,
+    math: `${expression} = ${factored}`,
+    identity: number,
+  }
+}
+
 function trinomialSteps(a: number, b: number, c: number, factors: [Factor, Factor]): Step[] {
+  const expression = trinomial(a, b, c)
+  // equal roots: (qx - p)^2; roots ±p/q: (qx - p)(qx + p)
+  if (same(...factors)) {
+    const sign = b < 0 ? '-' : ''
+    const why = `The first and last terms are perfect squares and the middle term is $${sign}2ab$`
+    return [identityStep(b < 0 ? 2 : 1, why, factors[0], expression, product(factors))]
+  }
+  if (b === 0) {
+    const why = 'Both terms are perfect squares with a minus between them'
+    return [identityStep(3, why, factors[0], expression, product(factors))]
+  }
   const [m, n] = factors.map((f) => -f.p)
   return [
     {
